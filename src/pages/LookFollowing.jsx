@@ -104,7 +104,8 @@ function LookFollowing() {
           </div>
         ) : (
           <div className={styles.userList}>
-            {followingList.map((user) => {
+            {followingList.map((user, index) => {
+              if (!user || !user._id) return null;
               const isMe = user._id.toString() === currentUserId?.toString();
               const profileLink = isMe ? "/myInfo" : `/lookFor/${user._id}`;
 
