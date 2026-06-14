@@ -63,9 +63,23 @@ function LookFollowers() {
     }
   };
 
-  const handleBack = () => {
-    navigate(-1);
+  const handleFollowToggle = async (targetId, isCurrentlyFollowing) => {
+    try {
+      const endpoint = isCurrentlyFollowing
+        ? `${API_URL}/api/interaction/unfollowsomeone/${targetId}`
+        : `${API_URL}/api/interaction/followsomeone/${targetId}`;
+      await axios.post(endpoint, {}, { withCredentials: true });
+      setFollowing((prev) =>
+        isCurrentlyFollowing
+          ? prev.filter((fId) => fId.toString() !== targetId.toString())
+          : [...prev, targetId]
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  const handleBack = () => navigate(-1);
 
   if (loading) {
     return (
@@ -78,7 +92,6 @@ function LookFollowers() {
 
   return (
     <div className={styles.page}>
-      {/* TOP HEADER */}
       <div className={styles.topBar}>
         <Link to="/" className={styles.logo}>
           <img src="/favicon-v2.svg" alt="miniGram" />
@@ -109,6 +122,9 @@ function LookFollowers() {
               {validFollowers.map((user) => {
                 const isMe = user._id.toString() === currentUserId?.toString();
                 const profileLink = isMe ? "/myInfo" : `/lookFor/${user._id}`;
+                const isFollowing = following.some(
+                  (fId) => fId.toString() === user._id.toString()
+                );
 
                 return (
                   <div key={user._id} className={styles.userRow}>
@@ -125,20 +141,18 @@ function LookFollowers() {
                         <span className={styles.name}>{user.name || "User"}</span>
                       </div>
                     </Link>
-                    {currentUserId && id === currentUserId.toString() ? (
-                      <button
-                        onClick={() => triggerRemoveModal(user)}
-                        className={styles.removeBtn}
-                      >
+
+                    {isMe ? null : currentUserId && id === currentUserId.toString() ? (
+                      <button onClick={() => triggerRemoveModal(user)} className={styles.removeBtn}>
                         Remove
                       </button>
                     ) : (
-                      <Link
-                        to={profileLink}
-                        className={styles.viewBtn}
+                      <button
+                        onClick={() => handleFollowToggle(user._id, isFollowing)}
+                        className={isFollowing ? styles.unfollowBtn : styles.followBtn}
                       >
-                        View
-                      </Link>
+                        {isFollowing ? "Following" : "Follow"}
+                      </button>
                     )}
                   </div>
                 );
@@ -156,12 +170,8 @@ function LookFollowers() {
               MiniGram won't tell @{modalTargetUser.username} they were removed from your followers.
             </p>
             <div className={styles.modalButtons}>
-              <button onClick={handleRemoveFollower} className={styles.modalOkBtn}>
-                Remove
-              </button>
-              <button onClick={() => setShowConfirmModal(false)} className={styles.modalCancelBtn}>
-                Cancel
-              </button>
+              <button onClick={handleRemoveFollower} className={styles.modalOkBtn}>Remove</button>
+              <button onClick={() => setShowConfirmModal(false)} className={styles.modalCancelBtn}>Cancel</button>
             </div>
           </div>
         </div>
