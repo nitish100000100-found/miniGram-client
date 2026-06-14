@@ -41,7 +41,7 @@ function AddPost() {
       await axios.post(`${API_URL}/api/post/upload`, formData, {
         withCredentials: true,
       });
-      navigate("myInfo");
+      navigate("/myInfo");
     } catch (error) {
       setError(error.response?.data?.message || "Failed to upload post.");
     } finally {
