@@ -98,52 +98,54 @@ function LookFollowing() {
           <div className={styles.errorState}>
             <p>{error}</p>
           </div>
-        ) : followingList.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>Not following anyone yet.</p>
-          </div>
-        ) : (
-          <div className={styles.userList}>
-            {followingList.map((user, index) => {
-              if (!user || !user._id) return null;
-              const isMe = user._id.toString() === currentUserId?.toString();
-              const profileLink = isMe ? "/myInfo" : `/lookFor/${user._id}`;
+        ) : (() => {
+          const validFollowing = followingList.filter((u) => u && u._id && u.username);
+          return validFollowing.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>Not following anyone yet.</p>
+            </div>
+          ) : (
+            <div className={styles.userList}>
+              {validFollowing.map((user) => {
+                const isMe = user._id.toString() === currentUserId?.toString();
+                const profileLink = isMe ? "/myInfo" : `/lookFor/${user._id}`;
 
-              return (
-                <div key={user._id} className={styles.userRow}>
-                  <Link to={profileLink} className={styles.userProfileLink} style={{ flex: "0 0 auto" }}>
-                    <img
-                      src={user.profilePicture || "/insta.webp"}
-                      alt={user.username}
-                      className={styles.avatar}
-                    />
-                  </Link>
-                  <Link to={profileLink} className={styles.userProfileLink} style={{ flex: 1, marginLeft: "18px" }}>
-                    <div className={styles.userMeta}>
-                      <span className={styles.username}>{user.username}</span>
-                      <span className={styles.name}>{user.name || "User"}</span>
-                    </div>
-                  </Link>
-                  {currentUserId && id === currentUserId.toString() ? (
-                    <button
-                      onClick={() => triggerUnfollowModal(user)}
-                      className={styles.unfollowBtn}
-                    >
-                      Unfollow
-                    </button>
-                  ) : (
-                    <Link
-                      to={profileLink}
-                      className={styles.viewBtn}
-                    >
-                      View
+                return (
+                  <div key={user._id} className={styles.userRow}>
+                    <Link to={profileLink} className={styles.userProfileLink} style={{ flex: "0 0 auto" }}>
+                      <img
+                        src={user.profilePicture || "/insta.webp"}
+                        alt={user.username}
+                        className={styles.avatar}
+                      />
                     </Link>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                    <Link to={profileLink} className={styles.userProfileLink} style={{ flex: 1, marginLeft: "18px" }}>
+                      <div className={styles.userMeta}>
+                        <span className={styles.username}>{user.username}</span>
+                        <span className={styles.name}>{user.name || "User"}</span>
+                      </div>
+                    </Link>
+                    {currentUserId && id === currentUserId.toString() ? (
+                      <button
+                        onClick={() => triggerUnfollowModal(user)}
+                        className={styles.unfollowBtn}
+                      >
+                        Unfollow
+                      </button>
+                    ) : (
+                      <Link
+                        to={profileLink}
+                        className={styles.viewBtn}
+                      >
+                        View
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
       </div>
 
       {showConfirmModal && modalTargetUser && (
