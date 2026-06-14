@@ -49,21 +49,9 @@ function ProfileCard() {
     return <div>Loading...</div>;
   }
 
-  const hasStories = user.stories && user.stories.length > 0;
-
-  let targetStoryId = null;
-let hasUnviewedStories = false;
-
-if (hasStories) {
-  const myId = user._id.toString();
-  const isViewed = (story) =>
-    story.viewedBy?.some((v) => (v._id || v).toString() === myId);
-
-  const firstUnseen = user.stories.find((story) => !isViewed(story));
-
-  targetStoryId = firstUnseen ? firstUnseen._id : user.stories[0]._id;
-  hasUnviewedStories = !!firstUnseen;
-}
+  const hasStories = user.hasStory;
+  const targetStoryId = user.targetStoryId;
+  const hasUnviewedStories = hasStories && !user.allViewed;
   return (
     <div className={styles.profileCard}>
       <div className={styles.profileLeft}>

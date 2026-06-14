@@ -200,8 +200,8 @@ function CommentPage() {
     );
   }
 
-  const isPostAuthorMe = post.author._id.toString() === currentUser?._id?.toString();
-  const authorProfileLink = isPostAuthorMe ? "/myInfo" : `/lookFor/${post.author._id}`;
+  const isPostAuthorMe = post.author?._id?.toString() === currentUser?._id?.toString();
+  const authorProfileLink = isPostAuthorMe ? "/myInfo" : `/lookFor/${post.author?._id}`;
 
   return (
     <div className={styles.page}>
