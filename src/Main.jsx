@@ -24,6 +24,7 @@ import SeeWhoLiked from './pages/SeeWhoLiked.jsx';
 import CommentPage from './pages/CommentPage.jsx';
 import AddHighlight from './pages/AddHighlight.jsx';
 import LookForHighlight from './pages/LookForHighlight.jsx';
+import Settings from './pages/Settings.jsx';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> , loader: protectedLoader},
@@ -102,6 +103,11 @@ const router = createBrowserRouter([
   {
     path: "/commentpage/:postId",
     element: <CommentPage />,
+    loader: protectedLoader
+  },
+  {
+    path: "/settings",
+    element: <Settings />,
     loader: protectedLoader
   },
 

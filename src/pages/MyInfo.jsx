@@ -111,30 +111,6 @@ function MyInfo() {
     }
   };
 
-  const togglePrivacy = async () => {
-    try {
-      const endpoint = user.isPrivate
-        ? "switch-to-public"
-        : "switch-to-private";
-      const res = await axios.post(
-        `${API_URL}/api/user/${endpoint}`,
-        {},
-        {
-          withCredentials: true,
-        },
-      );
-
-      if (res.data?.user) {
-        setUser((prev) => ({
-          ...prev,
-          isPrivate: res.data.user.isPrivate,
-        }));
-      }
-      window.location.reload();
-    } catch (error) {
-      console.error("Failed to toggle privacy status:", error);
-    }
-  };
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -180,13 +156,6 @@ function MyInfo() {
           <Link to="/" className={styles.backBtn}>
             ← Back
           </Link>
-          <button
-            type="button"
-            className={styles.settingsLinkBtn}
-            onClick={() => navigate("/settings")}
-          >
-            <FaCog /> Settings
-          </button>
         </div>
       </div>
       <div className={styles.profileCard}>
@@ -226,10 +195,10 @@ function MyInfo() {
             <h2>@{user.username}</h2>
             <button
               type="button"
-              onClick={togglePrivacy}
-              className={styles.privacyToggleBtn}
+              onClick={() => navigate("/settings")}
+              className={styles.settingsBtn}
             >
-              {user.isPrivate ? "Switch to Public" : "Switch to Private"}
+              <FaCog /> Settings
             </button>
           </div>
 
