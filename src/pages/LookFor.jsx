@@ -1,5 +1,5 @@
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 
@@ -18,6 +18,9 @@ import {
   FaEllipsisH,
   FaRegComment,
   FaRegPaperPlane,
+  FaPlay,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 import { MdOutlinePersonOff } from "react-icons/md";
 
@@ -29,14 +32,95 @@ function LookFor() {
   const { id } = useParams();
 
   const navigate = useNavigate();
+  const [playId, setPlayId] = useState(null);
+  const [muteId, setMuteId] = useState(null);
+
+  const handlePlayVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setPlayId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  const handleMuteVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setMuteId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  useEffect(() => {
+    document.querySelectorAll("video").forEach((video) => {
+      if (video.id === playId) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [playId]);
+
+
 
   const [user, setUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setnotFound] = useState(false);
   const [heartPopPostId, setHeartPopPostId] = useState(null);
+  const [showBlockPop, setShowBlockPop] = useState(false);
+  const [showBlockSuccess, setShowBlockSuccess] = useState(false);
+
+  const handleBlockUser = async () => {
+    try {
+      await axios.post(
+        `${API_URL}/api/interaction/block/${user._id}`,
+        {},
+        { withCredentials: true }
+      );
+      setShowBlockPop(false);
+      setShowBlockSuccess(true);
+    } catch (err) {
+      console.error("Block user failed:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (showBlockSuccess) {
+      const timer = setTimeout(() => {
+        navigate(-1);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showBlockSuccess, navigate]);
+
+  const clickTimer = useRef(null);
+
+  const handlePlayVideoWithTimer = (postId) => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    } else {
+      clickTimer.current = setTimeout(() => {
+        handlePlayVideo(postId);
+        clickTimer.current = null;
+      }, 250);
+    }
+  };
 
   const handleDoubleClick = (postId, isLiked) => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    }
     if (!isLiked) {
       handleLike(postId, isLiked);
     }
@@ -91,7 +175,7 @@ function LookFor() {
     }
   };
 
-  const handleComment = (post) => console.log("Comment:", post);
+
   const handleShare = (post) => console.log("Share:", post);
 
   const handleSave = async (postId, isSaved) => {
@@ -290,6 +374,9 @@ function LookFor() {
 
       {/* PROFILE */}
       <div className={styles.profileCard}>
+        <button className={styles.blockBtn} onClick={() => setShowBlockPop(true)}>
+          Block
+        </button>
         <div className={styles.left}>
           {user.hasStory ? (
             <Link to={`/lookForStory/${user.targetStoryId}`}>
@@ -480,7 +567,7 @@ function LookFor() {
                       <img
                         src={
                           highlight.coverImage ||
-                          highlight.stories[0].mediaUrl ||
+                          user?.profilePicture ||
                           "/insta.webp"
                         }
                         alt={highlight.title}
@@ -561,9 +648,8 @@ function LookFor() {
                         </button>
                       </div>
 
-                      {/* Post Media */}
                       <div
-                        className={styles.postMediaContainer}
+                        className={`${styles.postMediaContainer} ${styles.reel}`}
                         onDoubleClick={() =>
                           handleDoubleClick(post._id, isLiked)
                         }
@@ -575,12 +661,31 @@ function LookFor() {
                             className={styles.postImage}
                           />
                         ) : (
-                          <video
-                            src={post.mediaUrl}
-                            className={styles.postImage}
-                            muted
-                            controls
-                          />
+                          <div className={styles.videoWrapper}>
+                            <video
+                              id={post._id}
+                              src={post.mediaUrl}
+                              className={styles.postImage}
+                              muted={muteId !== post._id}
+                              loop
+                              playsInline
+                              onClick={() => handlePlayVideoWithTimer(post._id)}
+                            />
+                            {playId !== post._id && (
+                              <div className={styles.videoPlayOverlay} onClick={() => handlePlayVideoWithTimer(post._id)}>
+                                <FaPlay size={18} />
+                              </div>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMuteVideo(post._id);
+                              }}
+                              className={styles.videoMuteBtn}
+                            >
+                              {muteId === post._id ? <FaVolumeUp /> : <FaVolumeMute />}
+                            </button>
+                          </div>
                         )}
                         {heartPopPostId === post._id && (
                           <div className={styles.heartOverlay}>
@@ -665,6 +770,34 @@ function LookFor() {
           </div>
         )}
       </div>
+      {showBlockPop && (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <h3>Block User</h3>
+            <p>Are you sure you want to block @{user.username}?</p>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.modalCancelBtn}
+                onClick={() => setShowBlockPop(false)}
+              >
+                Cancel
+              </button>
+              <button className={styles.modalConfirmBtn} onClick={handleBlockUser}>
+                Block
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showBlockSuccess && (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <h3>Blocked</h3>
+            <p>User blocked successfully.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

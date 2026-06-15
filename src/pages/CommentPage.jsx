@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   FaHeart,
@@ -10,9 +10,12 @@ import {
   FaTrash,
   FaArrowLeft,
   FaPaperPlane,
+  FaPlay,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
-import { formatDistanceToNow } from "date-fns";
 import styles from "./CommentPage.module.css";
+import { formatDistanceToNow } from "date-fns";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,6 +31,33 @@ function CommentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showHeartPop, setShowHeartPop] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState(null);
+  const videoRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const clickTimer = useRef(null);
+
+  const handleToggle = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
+      setIsPaused(false);
+    } else {
+      videoRef.current.pause();
+      setIsPaused(true);
+    }
+  };
+
+  const handleClick = () => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    } else {
+      clickTimer.current = setTimeout(() => {
+        handleToggle();
+        clickTimer.current = null;
+      }, 250);
+    }
+  };
 
   const fetchCommentsData = async () => {
     try {
@@ -88,6 +118,10 @@ function CommentPage() {
   };
 
   const handleDoubleClick = () => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    }
     if (!isLiked) {
       handleLike();
     }
@@ -240,7 +274,7 @@ function CommentPage() {
               </Link>
             </div>
 
-            <div className={styles.mediaContainer} onDoubleClick={handleDoubleClick}>
+            <div className={`${styles.mediaContainer} ${styles.reel}`} onDoubleClick={handleDoubleClick}>
               {post.mediaType === "image" ? (
                 <img
                   src={post.mediaUrl}
@@ -248,14 +282,32 @@ function CommentPage() {
                   className={styles.media}
                 />
               ) : (
-                <video
-                  src={post.mediaUrl}
-                  className={styles.media}
-                  controls
-                  autoPlay
-                  muted
-                  loop
-                />
+                <div className={styles.videoWrapper}>
+                  <video
+                    ref={videoRef}
+                    src={post.mediaUrl}
+                    className={styles.media}
+                    muted={isMuted}
+                    loop
+                    playsInline
+                    autoPlay
+                    onClick={handleClick}
+                  />
+                  {isPaused && (
+                    <div className={styles.videoPlayOverlay}>
+                      <FaPlay size={18} />
+                    </div>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMuted(!isMuted);
+                    }}
+                    className={styles.videoMuteBtn}
+                  >
+                    {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+                  </button>
+                </div>
               )}
               
               {showHeartPop && (

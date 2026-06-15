@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import axios from "axios";
@@ -9,25 +9,74 @@ import {
   FaRegPaperPlane,
   FaRegBookmark,
   FaBookmark,
-  FaEllipsisH,
+  FaTrash,
+  FaPlay,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 import styles from "./PostCard.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
+function PostCard({
+  post,
+  currentUser,
+  setCurrentUser,
+  setPosts,
+  playId,
+  muteId,
+  onPlayToggle,
+  onMuteToggle,
+}) {
   const [showHeartPop, setShowHeartPop] = useState(false);
+  const [showDeletePop, setShowDeletePop] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    try {
+      await axios.post(
+        `${API_URL}/api/post/delete/${post._id}`,
+        {},
+        { withCredentials: true },
+      );
+      setPosts((prevPosts) =>
+        prevPosts.filter((p) => p._id.toString() !== post._id.toString()),
+      );
+    } catch (err) {
+      console.error("Delete post failed:", err);
+    } finally {
+      setShowDeletePop(false);
+    }
+  };
 
   // Derive liked and saved status directly from currentUser and post props
   const isLiked = currentUser?.likedPosts?.some(
-    (id) => id.toString() === post._id.toString()
+    (id) => id.toString() === post._id.toString(),
   );
   const isSaved = currentUser?.savedPosts?.some(
-    (id) => id.toString() === post._id.toString()
+    (id) => id.toString() === post._id.toString(),
   );
   const likesCount = post.likes?.length || 0;
 
+  const clickTimer = useRef(null);
+
+  const handleSingleClick = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    } else {
+      clickTimer.current = setTimeout(() => {
+        onPlayToggle();
+        clickTimer.current = null;
+      }, 250);
+    }
+  };
+
   const handleDoubleClick = () => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    }
     if (!isLiked) {
       handleLike();
     }
@@ -43,10 +92,9 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
       await axios.post(
         `${API_URL}/api/interaction/like/${post._id}`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
-      
-     
+
       setCurrentUser((prev) => {
         const liked = prev.likedPosts || [];
         return {
@@ -57,7 +105,6 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
         };
       });
 
-     
       setPosts((prevPosts) =>
         prevPosts.map((p) => {
           if (p._id.toString() === post._id.toString()) {
@@ -65,12 +112,14 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
             return {
               ...p,
               likes: isLiked
-                ? likes.filter((id) => id.toString() !== currentUser._id.toString())
+                ? likes.filter(
+                    (id) => id.toString() !== currentUser._id.toString(),
+                  )
                 : [...likes, currentUser._id],
             };
           }
           return p;
-        })
+        }),
       );
     } catch (err) {
       console.error("Like interaction failed:", err);
@@ -83,10 +132,9 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
       await axios.post(
         `${API_URL}/api/post/save/${post._id}`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
-      
-     
+
       setCurrentUser((prev) => {
         const saved = prev.savedPosts || [];
         return {
@@ -107,7 +155,9 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
   const activeStory = author.stories?.find((s) => s && s._id);
   const hasAuthorStory = !!activeStory;
   const authorProfileLink = isMe ? "/myInfo" : `/lookFor/${author._id}`;
-  const authorStoryLink = hasAuthorStory ? `/lookForStory/${activeStory._id}` : authorProfileLink;
+  const authorStoryLink = hasAuthorStory
+    ? `/lookForStory/${activeStory._id}`
+    : authorProfileLink;
 
   return (
     <div className={styles.postCard}>
@@ -127,13 +177,21 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
             </Link>
           </div>
         </div>
-        <button className={styles.moreBtn}>
-          <FaEllipsisH />
-        </button>
+        {isMe && (
+          <button
+            className={styles.deleteBtn}
+            onClick={() => setShowDeletePop(true)}
+          >
+            <FaTrash />
+          </button>
+        )}
       </div>
 
       {/* Post Media */}
-      <div className={styles.mediaContainer} onDoubleClick={handleDoubleClick}>
+      <div
+        className={`${styles.mediaContainer} ${styles.reel}`}
+        onDoubleClick={handleDoubleClick}
+      >
         {post.mediaType === "image" ? (
           <img
             src={post.mediaUrl}
@@ -141,12 +199,34 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
             className={styles.media}
           />
         ) : (
-          <video
-            src={post.mediaUrl}
-            className={styles.media}
-            muted
-            controls
-          />
+          <div className={styles.videoWrapper}>
+            <video
+              id={post._id}
+              src={post.mediaUrl}
+              className={styles.media}
+              muted={muteId !== post._id}
+              loop
+              playsInline
+              onClick={handleSingleClick}
+            />
+            {playId !== post._id && (
+              <div
+                className={styles.videoPlayOverlay}
+                onClick={handleSingleClick}
+              >
+                <FaPlay size={18} />
+              </div>
+            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMuteToggle();
+              }}
+              className={styles.videoMuteBtn}
+            >
+              {muteId === post._id ? <FaVolumeUp /> : <FaVolumeMute />}
+            </button>
+          </div>
         )}
         {showHeartPop && (
           <div className={styles.heartOverlay}>
@@ -166,7 +246,9 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
           </button>
           <Link to={`/commentpage/${post._id}`} className={styles.actionBtn}>
             <FaRegComment />
-            <span className={styles.commentCount}>{post.comments?.length || 0}</span>
+            <span className={styles.commentCount}>
+              {post.comments?.length || 0}
+            </span>
           </Link>
           <button className={styles.actionBtn}>
             <FaRegPaperPlane />
@@ -201,6 +283,28 @@ function PostCard({ post, currentUser, setCurrentUser, setPosts }) {
             : "JUST NOW"}
         </div>
       </div>
+      {showDeletePop && (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <h3>Delete Post</h3>
+            <p>Are you sure you want to delete this post?</p>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setShowDeletePop(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.confirmBtn}
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

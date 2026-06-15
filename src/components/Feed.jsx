@@ -10,6 +10,48 @@ function Feed() {
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [playId, setPlayId] = useState(null);
+  const [muteId, setMuteId] = useState(null);
+
+  const handlePlayVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setPlayId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  const handleMuteVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setMuteId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  useEffect(() => {
+    document.querySelectorAll("video").forEach((video) => {
+      if (video.id === playId) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [playId]);
+
+  useEffect(() => {
+    document.querySelectorAll("video").forEach((video) => {
+      video.muted = video.id !== muteId;
+    });
+  }, [muteId]);
 
   useEffect(() => {
     const fetchFeedData = async () => {
@@ -59,6 +101,10 @@ function Feed() {
             currentUser={currentUser}
             setCurrentUser={setCurrentUser}
             setPosts={setPosts}
+            playId={playId}
+            muteId={muteId}
+            onPlayToggle={() => handlePlayVideo(post._id)}
+            onMuteToggle={() => handleMuteVideo(post._id)}
           />
         ))
       )}

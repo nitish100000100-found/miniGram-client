@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
 import { IoArrowBack } from "react-icons/io5";
-import { FaLock, FaUserShield, FaSignOutAlt, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaLock, FaUserShield, FaSignOutAlt, FaEye, FaEyeSlash, FaUserSlash, FaBookmark } from "react-icons/fa";
 import styles from "./Settings.module.css";
 
 const Settings = () => {
@@ -262,6 +262,24 @@ const Settings = () => {
               {passwordLoading ? <ClipLoader size={18} color="#fff" /> : "Change Password"}
             </button>
           </form>
+        </div>
+
+        {/* ACCORDION/LINKS SECTION */}
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <FaUserShield className={styles.sectionIcon} />
+            <span>Account Actions</span>
+          </div>
+          <div className={styles.linksContainer}>
+            <Link to="/blocked-users" className={styles.linkItem}>
+              <FaUserSlash className={styles.linkIcon} />
+              <span>Blocked Users</span>
+            </Link>
+            <Link to="/saved-posts" className={styles.linkItem}>
+              <FaBookmark className={styles.linkIcon} />
+              <span>Saved Posts</span>
+            </Link>
+          </div>
         </div>
 
         {/* LOGOUT SECTION */}

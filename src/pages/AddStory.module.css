@@ -378,3 +378,82 @@
     padding: 24px;
   }
 }
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoPlayOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.videoMuteBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  z-index: 12;
+  transition: background 0.2s;
+}
+
+.videoMuteBtn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.changeFileBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(168, 85, 247, 0.85);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 12;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.changeFileBtn:hover {
+  background: rgba(168, 85, 247, 1);
+  transform: scale(1.03);
+}
+

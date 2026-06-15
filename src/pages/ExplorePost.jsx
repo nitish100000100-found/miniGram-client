@@ -1,5 +1,5 @@
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -11,6 +11,9 @@ import {
   FaRegBookmark,
   FaEllipsisH,
   FaArrowLeft,
+  FaPlay,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 import styles from "./ExplorePost.module.css";
 
@@ -18,13 +21,69 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 function ExplorePost() {
   const navigate = useNavigate();
+  const [playId, setPlayId] = useState(null);
+  const [muteId, setMuteId] = useState(null);
+
+  const handlePlayVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setPlayId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  const handleMuteVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setMuteId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  useEffect(() => {
+    document.querySelectorAll("video").forEach((video) => {
+      if (video.id === playId) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [playId]);
+
+
+
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [heartPopPostId, setHeartPopPostId] = useState(null);
+  const clickTimer = useRef(null);
+
+  const handlePlayVideoWithTimer = (postId) => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    } else {
+      clickTimer.current = setTimeout(() => {
+        handlePlayVideo(postId);
+        clickTimer.current = null;
+      }, 250);
+    }
+  };
 
   const handleDoubleClick = (postId, isLiked) => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    }
     if (!isLiked) {
       handleLike(postId, isLiked);
     }
@@ -197,9 +256,8 @@ function ExplorePost() {
                     </button>
                   </div>
 
-                  {/* Post Media */}
                   <div
-                    className={styles.postMediaContainer}
+                    className={`${styles.postMediaContainer} ${styles.reel}`}
                     onDoubleClick={() => handleDoubleClick(post._id, isLiked)}
                   >
                     {post.mediaType === "image" ? (
@@ -209,12 +267,31 @@ function ExplorePost() {
                         className={styles.postImage}
                       />
                     ) : (
-                      <video
-                        src={post.mediaUrl}
-                        className={styles.postImage}
-                        muted
-                        controls
-                      />
+                      <div className={styles.videoWrapper}>
+                        <video
+                          id={post._id}
+                          src={post.mediaUrl}
+                          className={styles.postImage}
+                          muted={muteId !== post._id}
+                          loop
+                          playsInline
+                          onClick={() => handlePlayVideoWithTimer(post._id)}
+                        />
+                        {playId !== post._id && (
+                          <div className={styles.videoPlayOverlay} onClick={() => handlePlayVideoWithTimer(post._id)}>
+                            <FaPlay size={18} />
+                          </div>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMuteVideo(post._id);
+                          }}
+                          className={styles.videoMuteBtn}
+                        >
+                          {muteId === post._id ? <FaVolumeUp /> : <FaVolumeMute />}
+                        </button>
+                      </div>
                     )}
                     {heartPopPostId === post._id && (
                       <div className={styles.heartOverlay}>

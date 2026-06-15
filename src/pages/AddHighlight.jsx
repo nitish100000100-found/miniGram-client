@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FaPlay, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import styles from "./AddHighlight.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -9,7 +10,9 @@ function AddHighlight() {
   const { storyId } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
 
+  const [currentUser, setCurrentUser] = useState(null);
   const [highlights, setHighlights] = useState([]);
   const [story, setStory] = useState(null);
   const [title, setTitle] = useState("");
@@ -17,6 +20,20 @@ function AddHighlight() {
   const [submitting, setSubmitting] = useState(false);
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState("");
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
+      setIsPaused(false);
+    } else {
+      videoRef.current.pause();
+      setIsPaused(true);
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -36,6 +53,7 @@ function AddHighlight() {
         ]);
 
         const user = userRes.data.user;
+        setCurrentUser(user);
         setHighlights(user.highlights || []);
         setStory(storyRes.data.story || null);
       } catch (err) {
@@ -97,7 +115,7 @@ function AddHighlight() {
               <div className={styles.list}>
                 {highlights.map(h => (
                   <button key={h._id} onClick={() => handleAddToExisting(h._id)} disabled={submitting} className={styles.item}>
-                    <img src={h.coverImage || h.stories?.[0]?.mediaUrl || "/insta.webp"} alt="" className={styles.cover} />
+                    <img src={h.coverImage || currentUser?.profilePicture || "/insta.webp"} alt="" className={styles.cover} />
                     <span>{h.title}</span>
                   </button>
                 ))}
@@ -113,7 +131,33 @@ function AddHighlight() {
             <h3>Selected Story</h3>
             <div className={styles.storyPreviewBox}>
               {story?.mediaType === "video" ? (
-                <video src={story.mediaUrl} className={styles.storyVideo} muted playsInline autoPlay loop />
+                <div className={styles.videoWrapper}>
+                  <video
+                    ref={videoRef}
+                    src={story.mediaUrl}
+                    className={styles.storyVideo}
+                    muted={isMuted}
+                    playsInline
+                    autoPlay
+                    loop
+                    onClick={handleToggle}
+                  />
+                  {isPaused && (
+                    <div className={styles.videoPlayOverlay}>
+                      <FaPlay size={18} />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMuted(!isMuted);
+                    }}
+                    className={styles.videoMuteBtn}
+                  >
+                    {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+                  </button>
+                </div>
               ) : (
                 <img src={story?.mediaUrl || "/insta.webp"} alt="Story" className={styles.storyImg} />
               )}

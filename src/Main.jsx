@@ -25,6 +25,8 @@ import CommentPage from './pages/CommentPage.jsx';
 import AddHighlight from './pages/AddHighlight.jsx';
 import LookForHighlight from './pages/LookForHighlight.jsx';
 import Settings from './pages/Settings.jsx';
+import BlockedUsers from './pages/BlockedUsers.jsx';
+import SavedPosts from './pages/SavedPosts.jsx';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> , loader: protectedLoader},
@@ -108,6 +110,16 @@ const router = createBrowserRouter([
   {
     path: "/settings",
     element: <Settings />,
+    loader: protectedLoader
+  },
+  {
+    path: "/blocked-users",
+    element: <BlockedUsers />,
+    loader: protectedLoader
+  },
+  {
+    path: "/saved-posts",
+    element: <SavedPosts />,
     loader: protectedLoader
   },
 

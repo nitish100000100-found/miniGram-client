@@ -1,5 +1,5 @@
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -16,9 +16,12 @@ import {
   FaUserEdit,
   FaCog,
   FaPlus,
-  FaEllipsisH,
+  FaTrash,
   FaRegComment,
   FaRegPaperPlane,
+  FaPlay,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 
 import styles from "./MyInfo.module.css";
@@ -27,12 +30,94 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 function MyInfo() {
   const navigate = useNavigate();
+  const [playId, setPlayId] = useState(null);
+  const [muteId, setMuteId] = useState(null);
+
+  const handlePlayVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setPlayId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  const handleMuteVideo = (postId) => {
+    if (playId === null && muteId === null) {
+      setPlayId(postId);
+      setMuteId(postId);
+    } else if (playId === postId || muteId === postId) {
+      setMuteId((prev) => (prev === postId ? null : postId));
+    } else {
+      setPlayId(postId);
+      setMuteId(postId);
+    }
+  };
+
+  useEffect(() => {
+    document.querySelectorAll("video").forEach((video) => {
+      if (video.id === playId) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [playId]);
+
+  
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [heartPopPostId, setHeartPopPostId] = useState(null);
+  const [postToDeleteId, setPostToDeleteId] = useState(null);
+  const [showDeletePop, setShowDeletePop] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    if (!postToDeleteId) return;
+    try {
+      await axios.post(
+        `${API_URL}/api/post/delete/${postToDeleteId}`,
+        {},
+        { withCredentials: true }
+      );
+      setUser((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          posts: prev.posts.filter((p) => p._id !== postToDeleteId),
+        };
+      });
+    } catch (err) {
+      console.error("Delete post failed:", err);
+      
+    } finally {
+      setShowDeletePop(false);
+      setPostToDeleteId(null);
+    }
+  };
+
+  const clickTimer = useRef(null);
+
+  const handlePlayVideoWithTimer = (postId) => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    } else {
+      clickTimer.current = setTimeout(() => {
+        handlePlayVideo(postId);
+        clickTimer.current = null;
+      }, 250);
+    }
+  };
 
   const handleDoubleClick = (postId, isLiked) => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+    }
     if (!isLiked) {
       handleLike(postId, isLiked);
     }
@@ -82,7 +167,7 @@ function MyInfo() {
     }
   };
 
-  const handleComment = (post) => console.log("Comment:", post);
+ 
   const handleShare = (post) => console.log("Share:", post);
 
   const handleSave = async (postId, isSaved) => {
@@ -268,7 +353,7 @@ function MyInfo() {
                     <img
                       src={
                         highlight.coverImage ||
-                        highlight.stories[0].mediaUrl ||
+                        user?.profilePicture ||
                         "/insta.webp"
                       }
                       alt={highlight.title}
@@ -341,14 +426,19 @@ function MyInfo() {
                           )}
                         </div>
                       </div>
-                      <button className={styles.postMoreBtn}>
-                        <FaEllipsisH />
+                      <button
+                        className={styles.postDeleteBtn}
+                        onClick={() => {
+                          setPostToDeleteId(post._id);
+                          setShowDeletePop(true);
+                        }}
+                      >
+                        <FaTrash />
                       </button>
                     </div>
 
-                    {/* Post Media */}
                     <div
-                      className={styles.postMediaContainer}
+                      className={`${styles.postMediaContainer} ${styles.reel}`}
                       onDoubleClick={() => handleDoubleClick(post._id, isLiked)}
                     >
                       {post.mediaType === "image" ? (
@@ -357,14 +447,33 @@ function MyInfo() {
                           alt={post.caption || "Post"}
                           className={styles.postImage}
                         />
-                      ) : (
+                    ) : (
+                      <div className={styles.videoWrapper}>
                         <video
+                          id={post._id}
                           src={post.mediaUrl}
                           className={styles.postImage}
-                          muted
-                          controls
+                          muted={muteId !== post._id}
+                          loop
+                          playsInline
+                          onClick={() => handlePlayVideoWithTimer(post._id)}
                         />
-                      )}
+                        {playId !== post._id && (
+                          <div className={styles.videoPlayOverlay} onClick={() => handlePlayVideoWithTimer(post._id)}>
+                            <FaPlay size={18} />
+                          </div>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMuteVideo(post._id);
+                          }}
+                          className={styles.videoMuteBtn}
+                        >
+                          {muteId === post._id ? <FaVolumeUp /> : <FaVolumeMute />}
+                        </button>
+                      </div>
+                    )}
                       {heartPopPostId === post._id && (
                         <div className={styles.heartOverlay}>
                           <FaHeart size={70} className={styles.popHeartIcon} />
@@ -397,6 +506,12 @@ function MyInfo() {
                           <FaRegPaperPlane />
                         </button>
                       </div>
+                      <button
+                        className={`${styles.postActionBtn} ${isSaved ? styles.postSaved : ""}`}
+                        onClick={() => handleSave(post._id, isSaved)}
+                      >
+                        {isSaved ? <FaBookmark /> : <FaRegBookmark />}
+                      </button>
                     </div>
 
                     {/* Content Area */}
@@ -431,6 +546,25 @@ function MyInfo() {
           </div>
         )}
       </div>
+      {showDeletePop && (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <h3>Delete Post</h3>
+            <p>Are you sure you want to delete this post?</p>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => { setShowDeletePop(false); setPostToDeleteId(null); }}
+              >
+                Cancel
+              </button>
+              <button className={styles.confirmBtn} onClick={handleConfirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

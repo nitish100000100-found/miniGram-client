@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { IoClose, IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { IoClose } from "react-icons/io5";
 
-import { FaEye, FaTrash } from "react-icons/fa";
+import { FaEye, FaTrash, FaVolumeMute, FaVolumeUp, FaPlay } from "react-icons/fa";
 import { FiStar } from "react-icons/fi";
 
 import styles from "./LookForStory.module.css";
@@ -22,18 +22,16 @@ const LookForStory = () => {
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const fetchInitialData = async () => {
     try {
       setLoading(true);
 
       const [userRes, storyRes] = await Promise.all([
-        axios.get(`${BaseUrl}/api/user/current`, {
-          withCredentials: true,
-        }),
-        axios.get(`${BaseUrl}/api/story/oneStory/${storyId}`, {
-          withCredentials: true,
-        }),
+        axios.get(`${BaseUrl}/api/user/current`, { withCredentials: true }),
+        axios.get(`${BaseUrl}/api/story/oneStory/${storyId}`, { withCredentials: true }),
       ]);
 
       const user = userRes.data.user;
@@ -44,17 +42,13 @@ const LookForStory = () => {
 
       const storiesRes = await axios.get(
         `${BaseUrl}/api/story/allStories/${story.author._id}`,
-        {
-          withCredentials: true,
-        },
+        { withCredentials: true }
       );
 
       const stories = storiesRes.data.stories;
-
       setAllStories(stories);
 
       const idx = stories.findIndex((s) => s._id === story._id);
-
       setCurrentIndex(idx);
     } catch (error) {
       console.log(error);
@@ -68,20 +62,17 @@ const LookForStory = () => {
   }, [storyId]);
 
   const handleNext = async () => {
-    if (currentIndex >= allStories.length - 1) return;
-
+    if (currentIndex >= allStories.length - 1) {
+      navigate(-1);
+      return;
+    }
     try {
       const nextIndex = currentIndex + 1;
-
       const nextStoryId = allStories[nextIndex]._id;
-
       const res = await axios.get(
         `${BaseUrl}/api/story/oneStory/${nextStoryId}`,
-        {
-          withCredentials: true,
-        },
+        { withCredentials: true }
       );
-
       setCurrentStory(res.data.story);
       setCurrentIndex(nextIndex);
     } catch (error) {
@@ -90,24 +81,47 @@ const LookForStory = () => {
   };
 
   const handlePrev = async () => {
-    if (currentIndex <= 0) return;
-
+    if (currentIndex <= 0) {
+      navigate(-1);
+      return;
+    }
     try {
       const prevIndex = currentIndex - 1;
-
       const prevStoryId = allStories[prevIndex]._id;
-
       const res = await axios.get(
         `${BaseUrl}/api/story/oneStory/${prevStoryId}`,
-        {
-          withCredentials: true,
-        },
+        { withCredentials: true }
       );
-
       setCurrentStory(res.data.story);
       setCurrentIndex(prevIndex);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleTap = (e) => {
+    if (showViewers || showConfirmDelete) return;
+    if (e.target.closest("button, a, video")) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const half = rect.width / 2;
+    if (x < half) {
+      handlePrev();
+    } else {
+      handleNext();
+    }
+  };
+
+  const handleVideoToggle = (e) => {
+    e.stopPropagation();
+    const video = e.currentTarget;
+    if (!video) return;
+    if (video.paused) {
+      video.play().catch(() => {});
+      setIsPaused(false);
+    } else {
+      video.pause();
+      setIsPaused(true);
     }
   };
 
@@ -118,11 +132,8 @@ const LookForStory = () => {
       await axios.post(
         `${BaseUrl}/api/story/deleteStory/${currentStory._id}`,
         {},
-        {
-          withCredentials: true,
-        },
+        { withCredentials: true }
       );
-
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -159,16 +170,12 @@ const LookForStory = () => {
   const isOwner = currentUser?._id === currentStory?.author?._id;
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onClick={handleTap}>
       {/* TOP BAR */}
-
       <div className={styles.topBar}>
         <Link
           to={isOwner ? "/myInfo" : `/lookFor/${currentStory.author._id}`}
-          style={{
-            textDecoration: "none",
-            color: "inherit",
-          }}
+          style={{ textDecoration: "none", color: "inherit" }}
         >
           <div className={styles.userInfo}>
             <img
@@ -176,7 +183,6 @@ const LookForStory = () => {
               alt=""
               className={styles.avatar}
             />
-
             <span>{currentStory.author?.username}</span>
           </div>
         </Link>
@@ -203,6 +209,16 @@ const LookForStory = () => {
             </>
           )}
 
+          {currentStory?.mediaType === "video" && (
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className={styles.muteBtn}
+              title={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+            </button>
+          )}
+
           <button onClick={() => navigate(-1)} className={styles.actionBtnWithLabel}>
             <IoClose />
             <span className={styles.btnLabel}>Close</span>
@@ -211,67 +227,57 @@ const LookForStory = () => {
       </div>
 
       {/* MEDIA */}
-
       <div className={styles.storyWrapper}>
         {currentStory.mediaType === "image" ? (
-          <img
-            src={currentStory.mediaUrl}
-            alt=""
-            className={styles.storyMedia}
-          />
+          <img src={currentStory.mediaUrl} alt="" className={styles.storyMedia} />
         ) : (
-          <video
-            src={currentStory.mediaUrl}
-            autoPlay
-            controls
-            className={styles.storyMedia}
-          />
+          <div className={styles.videoWrapper}>
+            <video
+              src={currentStory.mediaUrl}
+              autoPlay
+              loop
+              playsInline
+              muted={isMuted}
+              className={styles.storyMedia}
+              onClick={handleVideoToggle}
+            />
+            {isPaused && (
+              <div className={styles.videoPlayOverlay}>
+                <FaPlay size={20} style={{ marginLeft: "3px" }} />
+              </div>
+            )}
+          </div>
         )}
       </div>
 
-      {/* LEFT */}
-
-      {currentIndex > 0 && (
-        <button onClick={handlePrev} className={styles.leftArrow}>
-          <IoChevronBack />
-        </button>
-      )}
-
-      {/* RIGHT */}
-
-      {currentIndex < allStories.length - 1 && (
-        <button onClick={handleNext} className={styles.rightArrow}>
-          <IoChevronForward />
-        </button>
-      )}
-
       {/* OWNER CONTROLS */}
-
       {isOwner && (
-        <button
-          className={styles.viewsBtn}
-          onClick={() => setShowViewers(true)}
-        >
+        <button className={styles.viewsBtn} onClick={() => setShowViewers(true)}>
           <FaEye />
-
           <span>
             {(() => {
               const hasOwnerViewed = (currentStory.viewedBy || []).some(
                 (u) => (u._id || u).toString() === currentUser?._id?.toString()
               );
-              return Math.max(0, (currentStory.viewedBy?.length || 0) - (hasOwnerViewed ? 1 : 0));
+              return Math.max(
+                0,
+                (currentStory.viewedBy?.length || 0) - (hasOwnerViewed ? 1 : 0)
+              );
             })()}
           </span>
         </button>
       )}
 
-      {/* VIEWERS SHEET */}
+      {/* STORY COUNTER */}
+      <span className={styles.storyCounter}>
+        {currentIndex + 1} / {allStories.length}
+      </span>
 
+      {/* VIEWERS SHEET */}
       {showViewers && (
         <div className={styles.viewersSheet}>
           <div className={styles.viewersHeader}>
             <h3>Story Views</h3>
-
             <button onClick={() => setShowViewers(false)}>
               <IoClose />
             </button>
@@ -283,11 +289,7 @@ const LookForStory = () => {
               currentStory.viewedBy.map((user) => {
                 if (user._id?.toString() === currentUser?._id?.toString()) return null;
                 return (
-                  <Link
-                    key={user._id}
-                    to={`/lookFor/${user._id}`}
-                    className={styles.viewerItem}
-                  >
+                  <Link key={user._id} to={`/lookFor/${user._id}`} className={styles.viewerItem}>
                     <img src={user.profilePicture || "/insta.webp"} alt="" />
                     <span>{user.username}</span>
                   </Link>
@@ -297,6 +299,7 @@ const LookForStory = () => {
           </div>
         </div>
       )}
+
       {/* CONFIRM DELETE MODAL */}
       {showConfirmDelete && (
         <div className={styles.modalOverlay}>
@@ -310,10 +313,7 @@ const LookForStory = () => {
               >
                 Cancel
               </button>
-              <button
-                className={styles.deleteConfirmBtn}
-                onClick={handleDelete}
-              >
+              <button className={styles.deleteConfirmBtn} onClick={handleDelete}>
                 Delete
               </button>
             </div>

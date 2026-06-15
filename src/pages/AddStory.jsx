@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
+import { FaPlay, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import styles from "./AddStory.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -13,6 +14,21 @@ function AddStory() {
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState([]);
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
+      setIsPaused(false);
+    } else {
+      videoRef.current.pause();
+      setIsPaused(true);
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -21,6 +37,7 @@ function AddStory() {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(file));
       setErrors([]);
+      setIsPaused(false);
     }
   };
 
@@ -97,16 +114,57 @@ function AddStory() {
           />
 
           <div className={styles.studioLayout}>
-            {/* LEFT COLUMN: Media Preview Area */}
-            <div className={styles.mediaContainer} onClick={triggerSelectFile}>
+            <div className={styles.mediaContainer}>
               {previewUrl ? (
                 selectedFile?.type.startsWith("video/") ? (
-                  <video src={previewUrl} className={styles.preview} controls />
+                  <div className={styles.videoWrapper}>
+                    <video
+                      ref={videoRef}
+                      src={previewUrl}
+                      className={styles.preview}
+                      muted={isMuted}
+                      loop
+                      playsInline
+                      autoPlay
+                      onClick={handleToggle}
+                    />
+                    {isPaused && (
+                      <div className={styles.videoPlayOverlay}>
+                        <FaPlay size={18} />
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMuted(!isMuted);
+                      }}
+                      className={styles.videoMuteBtn}
+                    >
+                      {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.changeFileBtn}
+                      onClick={triggerSelectFile}
+                    >
+                      Change File
+                    </button>
+                  </div>
                 ) : (
-                  <img src={previewUrl} alt="Preview" className={styles.preview} />
+                  <div className={styles.imageWrapper}>
+                    <img src={previewUrl} alt="Preview" className={styles.preview} />
+                    <button
+                      type="button"
+                      className={styles.changeFileBtn}
+                      onClick={triggerSelectFile}
+                    >
+                      Change File
+                    </button>
+                  </div>
                 )
               ) : (
-                <div className={styles.uploadPlaceholder}>
+                <div className={styles.uploadPlaceholder} onClick={triggerSelectFile}>
                   <span className={styles.plusSign}>+</span>
                   <span className={styles.placeholderText}>Click to select Photo or Video</span>
                   <span className={styles.helperText}>Supports MP4, WebM, JPEG, PNG</span>

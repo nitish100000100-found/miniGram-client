@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
+import { FaPlay, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import styles from "./AddPost.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -14,6 +15,21 @@ function AddPost() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
+      setIsPaused(false);
+    } else {
+      videoRef.current.pause();
+      setIsPaused(true);
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -22,6 +38,7 @@ function AddPost() {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(file));
       setError("");
+      setIsPaused(false);
     }
   };
 
@@ -68,8 +85,14 @@ function AddPost() {
         {error && <p className={styles.errorMsg}>{error}</p>}
 
         <form onSubmit={handleUpload} className={styles.form}>
-          {/* File Upload / Preview Area */}
-          <div className={styles.uploadBox} onClick={() => fileInputRef.current?.click()}>
+          <div
+            className={styles.uploadBox}
+            onClick={() => {
+              if (!previewUrl) {
+                fileInputRef.current?.click();
+              }
+            }}
+          >
             <input
               type="file"
               ref={fileInputRef}
@@ -79,9 +102,47 @@ function AddPost() {
             />
             {previewUrl ? (
               selectedFile?.type.startsWith("video/") ? (
-                <video src={previewUrl} className={styles.preview} controls />
+                <div className={styles.videoWrapper}>
+                  <video
+                    ref={videoRef}
+                    src={previewUrl}
+                    className={styles.preview}
+                    muted={isMuted}
+                    playsInline
+                    autoPlay
+                    loop
+                    onClick={handleToggle}
+                  />
+                  {isPaused && (
+                    <div className={styles.videoPlayOverlay}>
+                      <FaPlay size={18} />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMuted(!isMuted);
+                    }}
+                    className={styles.videoMuteBtn}
+                  >
+                    {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.changeFileBtn}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Change File
+                  </button>
+                </div>
               ) : (
-                <img src={previewUrl} alt="Preview" className={styles.preview} />
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className={styles.preview}
+                  onClick={() => fileInputRef.current?.click()}
+                />
               )
             ) : (
               <div className={styles.placeholder}>
