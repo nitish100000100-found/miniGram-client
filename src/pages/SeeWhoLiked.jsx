@@ -17,22 +17,29 @@ function SeeWhoLiked() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [likesRes, userRes] = await Promise.all([
-          axios.get(`${API_URL}/api/interaction/whoLiked/${postId}`, {
-            withCredentials: true,
-          }),
-          axios.get(`${API_URL}/api/user/current`, {
-            withCredentials: true,
-          }),
-        ]);
-        setUsersList(likesRes.data.users || []);
+        const userRes = await axios.get(`${API_URL}/api/user/current`, {
+          withCredentials: true,
+        });
         setCurrentUser(userRes.data.user);
+
+        try {
+          const likesRes = await axios.get(`${API_URL}/api/interaction/whoLiked/${postId}`, {
+            withCredentials: true,
+          });
+          setUsersList(likesRes.data.users || []);
+        } catch (postErr) {
+          console.warn("Post likes failed, attempting loop likes:", postErr);
+          const loopLikesRes = await axios.get(`${API_URL}/api/loop/whoLiked/${postId}`, {
+            withCredentials: true,
+          });
+          setUsersList(loopLikesRes.data.users || []);
+        }
       } catch (err) {
         console.error("Failed to load likes list:", err);
         if (err.response?.status === 403) {
-          setError("You do not have access to view this post.");
+          setError("You do not have access to view this.");
         } else {
-          setError("Failed to load users who liked this post.");
+          setError("Failed to load users who liked this.");
         }
       } finally {
         setLoading(false);

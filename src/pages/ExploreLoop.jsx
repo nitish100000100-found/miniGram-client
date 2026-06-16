@@ -41,12 +41,12 @@ const ExploreLoop = () => {
   const currentLoop = allLoops?.[currentIndex] || null;
   const liked =
     currentLoop?.likes?.some(
-      (id) => id.toString() === currentUser?._id?.toString(),
+      (id) => (id?._id ? id._id.toString() : id?.toString()) === currentUser?._id?.toString(),
     ) || false;
   const likesCount = currentLoop?.likes?.length || 0;
   const saved =
     currentUser?.savedLoops?.some(
-      (id) => id.toString() === currentLoop?._id?.toString(),
+      (id) => (id?._id ? id._id.toString() : id?.toString()) === currentLoop?._id?.toString(),
     ) || false;
 
   const handleTouchStart = (e) => {
@@ -321,15 +321,6 @@ const ExploreLoop = () => {
       {/* Background Close Click Zone */}
       <div className={styles.closeZone} onClick={() => navigate(-1)} />
 
-      {/* CLOSE BUTTON */}
-      <button
-        onClick={() => navigate(-1)}
-        className={styles.closeBtn}
-        title="Close"
-      >
-        <IoClose />
-      </button>
-
       {/* Desktop Navigation Controls */}
       <div className={styles.navControls}>
         <button
@@ -355,6 +346,17 @@ const ExploreLoop = () => {
       {/* PLAYER COMPONENT */}
       <div className={styles.playerWrapper}>
         <div className={styles.videoContainer}>
+          {/* CLOSE BUTTON */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(-1);
+            }}
+            className={styles.closeBtn}
+            title="Close"
+          >
+            <IoClose />
+          </button>
           <video
             ref={videoRef}
             src={currentLoop.mediaUrl}
@@ -410,7 +412,9 @@ const ExploreLoop = () => {
               >
                 {liked ? <FaHeart /> : <FaRegHeart />}
               </button>
-              <span className={styles.actionText}>{likesCount}</span>
+              <Link to={`/seeWhoLiked/${currentLoop._id}`} className={styles.actionText}>
+                {likesCount}
+              </Link>
             </div>
 
             {/* Comment Action */}
