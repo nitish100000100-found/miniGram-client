@@ -13,10 +13,14 @@ const ShowReel = ({ loops = [] }) => {
     );
   }
 
-  // Sort loops by creation date descending
-  const sortedLoops = [...loops].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
+  // Filter out any invalid items and sort by creation date descending
+  const sortedLoops = [...loops]
+    .filter((l) => l && l._id)
+    .sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt) : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt) : 0;
+      return dateB - dateA;
+    });
 
   return (
     <div className={styles.loopsGrid}>
