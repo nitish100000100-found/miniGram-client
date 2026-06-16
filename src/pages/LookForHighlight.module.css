@@ -76,7 +76,7 @@
   width: 100%;
   max-width: 460px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-evenly;
   padding: 20px 10px;
   z-index: 105;
@@ -207,7 +207,7 @@
     border: none;
   }
   .topBar {
-    top: 0;
+    top: env(safe-area-inset-top, 10px);
     left: 0;
     transform: none;
     max-width: 100%;
@@ -215,9 +215,20 @@
     padding: 0 16px;
   }
   .storyCounter {
-    bottom: 24px;
+    top: calc(75px + env(safe-area-inset-top, 0px));
+    bottom: auto;
     left: 50%;
     transform: translateX(-50%);
+  }
+  .bottomActions {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: calc(100% - 24px);
+    background: rgba(15, 8, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 12px 6px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -442,21 +453,21 @@
 }
 .storyCounter {
   position: absolute;
-  bottom: calc(50% - 40vh + 20px);
+  top: 85px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   color: #fff;
-  padding: 10px 18px;
-  border-radius: 20px;
+  padding: 6px 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   z-index: 103;
 }
 
