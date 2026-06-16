@@ -9,6 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 function AddPost() {
   const navigate = useNavigate();
+  const [uploadType, setUploadType] = useState("post"); 
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [caption, setCaption] = useState("");
@@ -34,6 +35,10 @@ function AddPost() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (uploadType === "loop" && !file.type.startsWith("video/")) {
+        setError("Loops can only be video files.");
+        return;
+      }
       setSelectedFile(file);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(file));
@@ -49,18 +54,24 @@ function AddPost() {
       return;
     }
 
+    if (uploadType === "loop" && !selectedFile.type.startsWith("video/")) {
+      setError("Loops can only be video files.");
+      return;
+    }
+
     setUploading(true);
     const formData = new FormData();
-    formData.append("media", selectedFile);
+    formData.append(uploadType === "loop" ? "video" : "media", selectedFile);
     formData.append("caption", caption);
 
     try {
-      await axios.post(`${API_URL}/api/post/upload`, formData, {
+      const endpoint = uploadType === "loop" ? "/api/loop/upload" : "/api/post/upload";
+      await axios.post(`${API_URL}${endpoint}`, formData, {
         withCredentials: true,
       });
       navigate("/myInfo");
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to upload post.");
+      setError(error.response?.data?.message || `Failed to upload ${uploadType}.`);
     } finally {
       setUploading(false);
     }
@@ -81,6 +92,36 @@ function AddPost() {
 
       <div className={styles.glassCard}>
         <h2>Share your memory</h2>
+
+        {/* Tab Toggle */}
+        <div className={styles.tabContainer}>
+          <button
+            type="button"
+            className={`${styles.tab} ${uploadType === "post" ? styles.activeTab : ""}`}
+            onClick={() => {
+              setUploadType("post");
+              setSelectedFile(null);
+              setPreviewUrl("");
+              setCaption("");
+              setError("");
+            }}
+          >
+            Post
+          </button>
+          <button
+            type="button"
+            className={`${styles.tab} ${uploadType === "loop" ? styles.activeTab : ""}`}
+            onClick={() => {
+              setUploadType("loop");
+              setSelectedFile(null);
+              setPreviewUrl("");
+              setCaption("");
+              setError("");
+            }}
+          >
+            Loop
+          </button>
+        </div>
         
         {error && <p className={styles.errorMsg}>{error}</p>}
 
@@ -97,7 +138,7 @@ function AddPost() {
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
-              accept="image/*,video/*"
+              accept={uploadType === "loop" ? "video/*" : "image/*,video/*"}
               style={{ display: "none" }}
             />
             {previewUrl ? (
@@ -146,8 +187,14 @@ function AddPost() {
               )
             ) : (
               <div className={styles.placeholder}>
-                <span className={styles.icon}>📸</span>
-                <p>Click to upload photo or video</p>
+                <span className={styles.icon}>
+                  {uploadType === "loop" ? "🎥" : "📸"}
+                </span>
+                <p>
+                  {uploadType === "loop"
+                    ? "Click to upload a video"
+                    : "Click to upload photo or video"}
+                </p>
               </div>
             )}
           </div>
@@ -168,11 +215,11 @@ function AddPost() {
             {uploading ? (
               <div className={styles.loader}>
                 <ClipLoader size={24} color="#c084fc" />
-                <span>Uploading Post...</span>
+                <span>Uploading {uploadType === "loop" ? "Loop" : "Post"}...</span>
               </div>
             ) : (
               <button type="submit" className={styles.submitBtn}>
-                Share Post
+                Share {uploadType === "loop" ? "Loop" : "Post"}
               </button>
             )}
           </div>

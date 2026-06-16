@@ -224,6 +224,19 @@ function Notifications() {
                           </Link>
                         </div>
                       )}
+
+                      {/* Right side preview for Loop notifications */}
+                      {notif.targetType === "Loop" && notif.targetId && (
+                        <div className={styles.rightPreview}>
+                          <Link to={`/commentpage/${notif.targetId._id}`}>
+                            <img
+                              src={notif.targetId.thumbnail || "/reelIcon.png"}
+                              alt="Loop preview"
+                              className={styles.previewImage}
+                            />
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
