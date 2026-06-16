@@ -15,6 +15,7 @@ import {
   FaVolumeMute,
   FaVolumeUp,
 } from "react-icons/fa";
+import ShowReel from "../components/ShowReel";
 import styles from "./SavedPosts.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -22,6 +23,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 const SavedPosts = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
+  const [loops, setLoops] = useState([]);
+  const [activeTab, setActiveTab] = useState("posts");
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [playId, setPlayId] = useState(null);
@@ -96,26 +99,26 @@ const SavedPosts = () => {
   }, [muteId]);
 
   useEffect(() => {
-    const fetchSavedPostsData = async () => {
+    const fetchSavedData = async () => {
       try {
-        const postsRes = await axios.get(`${API_URL}/api/post/saved`, {
-          withCredentials: true,
-        });
-        const userRes = await axios.get(`${API_URL}/api/user/current`, {
-          withCredentials: true,
-        });
+        const [postsRes, loopsRes, userRes] = await Promise.all([
+          axios.get(`${API_URL}/api/post/saved`, { withCredentials: true }),
+          axios.get(`${API_URL}/api/loop/saved/all`, { withCredentials: true }),
+          axios.get(`${API_URL}/api/user/current`, { withCredentials: true }),
+        ]);
 
         setPosts(postsRes.data.savedPosts || []);
+        setLoops(loopsRes.data.savedLoops || []);
         setCurrentUser(userRes.data.user);
       } catch (err) {
-        console.error("Failed to load saved posts:", err);
-        setError("Failed to load saved posts.");
+        console.error("Failed to load saved items:", err);
+        setError("Failed to load saved items.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSavedPostsData();
+    fetchSavedData();
   }, []);
 
   const handleSingleClick = (postId) => {
@@ -243,174 +246,196 @@ const SavedPosts = () => {
 
         {error && <div className={styles.errorBox}>{error}</div>}
 
-        <div className={styles.feed}>
-          {posts.length === 0 ? (
-            <div className={styles.emptyState}>
-              <FaBookmark className={styles.emptyIcon} />
-              <h3>No Saved Posts</h3>
-              <p>When you save photos and videos, they'll appear here.</p>
-            </div>
-          ) : (
-            posts.map((post) => {
-              const author = post.author;
-              if (!author) return null;
+        {/* Tab Selection */}
+        <div className={styles.profileTabs}>
+          <button
+            type="button"
+            className={`${styles.profileTabBtn} ${activeTab === "posts" ? styles.activeProfileTab : ""}`}
+            onClick={() => setActiveTab("posts")}
+          >
+            ▦ Posts
+          </button>
+          <button
+            type="button"
+            className={`${styles.profileTabBtn} ${activeTab === "loops" ? styles.activeProfileTab : ""}`}
+            onClick={() => setActiveTab("loops")}
+          >
+            🎬 Loops
+          </button>
+        </div>
 
-              const isLiked = currentUser?.likedPosts?.includes(post._id);
-              const isSaved = currentUser?.savedPosts?.includes(post._id);
-              const likesCount = post.likes?.length || 0;
-              const isMe =
-                author._id?.toString() === currentUser?._id?.toString();
-              const authorProfileLink = isMe
-                ? "/myInfo"
-                : `/lookFor/${author._id}`;
+        <div className={styles.postsSection}>
+          {activeTab === "posts" ? (
+            <div className={styles.feed}>
+              {posts.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <FaBookmark className={styles.emptyIcon} />
+                  <h3>No Saved Posts</h3>
+                  <p>When you save photos and videos, they'll appear here.</p>
+                </div>
+              ) : (
+                posts.map((post) => {
+                  const author = post.author;
+                  if (!author) return null;
 
-              return (
-                <div key={post._id} className={styles.postCard}>
-                  {/* Post Header */}
-                  <div className={styles.header}>
-                    <div className={styles.authorInfo}>
-                      <Link to={authorProfileLink}>
-                        <img
-                          src={author.profilePicture || "/insta.webp"}
-                          alt={author.username || "user"}
-                          className={styles.authorAvatar}
-                        />
-                      </Link>
-                      <div className={styles.meta}>
-                        <Link
-                          to={authorProfileLink}
-                          className={styles.username}
-                        >
-                          {author.username || "unknown"}
-                        </Link>
+                  const isLiked = currentUser?.likedPosts?.includes(post._id);
+                  const isSaved = currentUser?.savedPosts?.includes(post._id);
+                  const likesCount = post.likes?.length || 0;
+                  const isMe =
+                    author._id?.toString() === currentUser?._id?.toString();
+                  const authorProfileLink = isMe
+                    ? "/myInfo"
+                    : `/lookFor/${author._id}`;
+
+                  return (
+                    <div key={post._id} className={styles.postCard}>
+                      {/* Post Header */}
+                      <div className={styles.header}>
+                        <div className={styles.authorInfo}>
+                          <Link to={authorProfileLink}>
+                            <img
+                              src={author.profilePicture || "/insta.webp"}
+                              alt={author.username || "user"}
+                              className={styles.authorAvatar}
+                            />
+                          </Link>
+                          <div className={styles.meta}>
+                            <Link
+                              to={authorProfileLink}
+                              className={styles.username}
+                            >
+                              {author.username || "unknown"}
+                            </Link>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {/* Post Media */}
-                  {/* Post Media */}
-                  <div
-                    className={`${styles.mediaContainer} ${styles.reel}`}
-                    onDoubleClick={() => handleDoubleClick(post)}
-                  >
-                    {post.mediaType === "image" ? (
-                      <img
-                        src={post.mediaUrl}
-                        alt={post.caption || "Post Content"}
-                        className={styles.media}
-                      />
-                    ) : (
-                      <div className={styles.videoWrapper}>
-                        <video
-                          id={post._id}
-                          src={post.mediaUrl}
-                          className={styles.media}
-                          muted={muteId !== post._id}
-                          loop
-                          playsInline
-                          onClick={() => handleSingleClick(post._id)}
-                        />
+                      {/* Post Media */}
+                      <div
+                        className={`${styles.mediaContainer} ${styles.reel}`}
+                        onDoubleClick={() => handleDoubleClick(post)}
+                      >
+                        {post.mediaType === "image" ? (
+                          <img
+                            src={post.mediaUrl}
+                            alt={post.caption || "Post Content"}
+                            className={styles.media}
+                          />
+                        ) : (
+                          <div className={styles.videoWrapper}>
+                            <video
+                              id={post._id}
+                              src={post.mediaUrl}
+                              className={styles.media}
+                              muted={muteId !== post._id}
+                              loop
+                              playsInline
+                              onClick={() => handleSingleClick(post._id)}
+                            />
 
-                        {playId !== post._id && (
-                          <div
-                            className={styles.videoPlayOverlay}
-                            onClick={() => handleSingleClick(post._id)}
-                          >
-                            <FaPlay size={18} />
+                            {playId !== post._id && (
+                              <div
+                                className={styles.videoPlayOverlay}
+                                onClick={() => handleSingleClick(post._id)}
+                              >
+                                <FaPlay size={18} />
+                              </div>
+                            )}
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMuteVideo(post._id);
+                              }}
+                              className={styles.videoMuteBtn}
+                            >
+                              {muteId === post._id ? (
+                                <FaVolumeUp />
+                              ) : (
+                                <FaVolumeMute />
+                              )}
+                            </button>
                           </div>
                         )}
 
+                        {heartPops === post._id && (
+                          <div className={styles.heartOverlay}>
+                            <FaHeart size={70} className={styles.popHeartIcon} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className={styles.actions}>
+                        <div className={styles.leftActions}>
+                          <button
+                            className={`${styles.actionBtn} ${
+                              isLiked ? styles.liked : ""
+                            }`}
+                            onClick={() => handleLike(post)}
+                          >
+                            {isLiked ? <FaHeart /> : <FaRegHeart />}
+                          </button>
+                          <Link
+                            to={`/commentpage/${post._id}`}
+                            className={styles.actionBtn}
+                          >
+                            <FaRegComment />
+                            <span className={styles.commentCount}>
+                              {post.comments?.length || 0}
+                            </span>
+                          </Link>
+                          <button className={styles.actionBtn}>
+                            <FaRegPaperPlane />
+                          </button>
+                        </div>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMuteVideo(post._id);
-                          }}
-                          className={styles.videoMuteBtn}
+                          className={`${styles.actionBtn} ${
+                            isSaved ? styles.saved : ""
+                          }`}
+                          onClick={() => handleSave(post)}
                         >
-                          {muteId === post._id ? (
-                            <FaVolumeUp />
-                          ) : (
-                            <FaVolumeMute />
-                          )}
+                          {isSaved ? <FaBookmark /> : <FaRegBookmark />}
                         </button>
                       </div>
-                    )}
 
-                    {heartPops === post._id && (
-                      <div className={styles.heartOverlay}>
-                        <FaHeart size={70} className={styles.popHeartIcon} />
+                      {/* Content Area */}
+                      <div className={styles.content}>
+                        <Link
+                          to={`/seeWhoLiked/${post._id}`}
+                          className={styles.likesCountLink}
+                        >
+                          <div className={styles.likesCount}>
+                            {likesCount.toLocaleString()} likes
+                          </div>
+                        </Link>
+                        <div className={styles.caption}>
+                          <Link
+                            to={authorProfileLink}
+                            className={styles.captionUser}
+                          >
+                            {author.username || "unknown"}
+                          </Link>
+                          <span>{post.caption}</span>
+                        </div>
+                        <div className={styles.time}>
+                          {post.createdAt
+                            ? formatDistanceToNow(new Date(post.createdAt), {
+                                addSuffix: true,
+                              }).toUpperCase()
+                            : "JUST NOW"}
+                        </div>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className={styles.actions}>
-                    <div className={styles.leftActions}>
-                      <button
-                        className={`${styles.actionBtn} ${
-                          isLiked ? styles.liked : ""
-                        }`}
-                        onClick={() => handleLike(post)}
-                      >
-                        {isLiked ? <FaHeart /> : <FaRegHeart />}
-                      </button>
-                      <Link
-                        to={`/commentpage/${post._id}`}
-                        className={styles.actionBtn}
-                      >
-                        <FaRegComment />
-                        <span className={styles.commentCount}>
-                          {post.comments?.length || 0}
-                        </span>
-                      </Link>
-                      <button className={styles.actionBtn}>
-                        <FaRegPaperPlane />
-                      </button>
                     </div>
-                    <button
-                      className={`${styles.actionBtn} ${
-                        isSaved ? styles.saved : ""
-                      }`}
-                      onClick={() => handleSave(post)}
-                    >
-                      {isSaved ? <FaBookmark /> : <FaRegBookmark />}
-                    </button>
-                  </div>
-
-                  {/* Content Area */}
-                  <div className={styles.content}>
-                    <Link
-                      to={`/seeWhoLiked/${post._id}`}
-                      className={styles.likesCountLink}
-                    >
-                      <div className={styles.likesCount}>
-                        {likesCount.toLocaleString()} likes
-                      </div>
-                    </Link>
-                    <div className={styles.caption}>
-                      <Link
-                        to={authorProfileLink}
-                        className={styles.captionUser}
-                      >
-                        {author.username || "unknown"}
-                      </Link>
-                      <span>{post.caption}</span>
-                    </div>
-                    <div className={styles.time}>
-                      {post.createdAt
-                        ? formatDistanceToNow(new Date(post.createdAt), {
-                            addSuffix: true,
-                          }).toUpperCase()
-                        : "JUST NOW"}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
+                  );
+                })
+              )}
+            </div>
+          ) : (
+            <ShowReel loops={loops} />
           )}
         </div>
       </div>
-
     </div>
   );
 };

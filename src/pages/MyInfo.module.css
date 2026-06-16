@@ -932,3 +932,51 @@
 .videoMuteBtn:hover {
   transform: scale(1.1);
 }
+
+.profileTabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 600px;
+  margin: 30px auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+
+.profileTabBtn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.profileTabBtn:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.activeProfileTab {
+  color: #c084fc;
+}
+
+.activeProfileTab::after {
+  content: "";
+  position: absolute;
+  bottom: -16px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #c084fc, #a855f7);
+  border-radius: 2px;
+}

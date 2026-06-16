@@ -31,6 +31,7 @@ import SearchUser from './pages/SearchUser.jsx';
 import Notifications from './pages/Notifications.jsx';
 import FollowRequests from './pages/FollowRequests.jsx';
 import SuggestedUsers from './components/SuggestedUsers.jsx';
+import ShowOneLoop from './pages/ShowOneLoop.jsx';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> , loader: protectedLoader},
@@ -104,6 +105,11 @@ const router = createBrowserRouter([
   {
     path: "/lookForStory/:storyId",
     element: <LookForStory />,
+    loader: protectedLoader
+  },
+  {
+    path: "/showOneLoop/:loopId",
+    element: <ShowOneLoop />,
     loader: protectedLoader
   },
   {

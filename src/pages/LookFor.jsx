@@ -25,6 +25,7 @@ import {
 import { MdOutlinePersonOff } from "react-icons/md";
 
 import styles from "./LookFor.module.css";
+import ShowReel from "../components/ShowReel.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -97,6 +98,8 @@ function LookFor() {
 
   const [user, setUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [loops, setLoops] = useState([]);
+  const [activeTab, setActiveTab] = useState("posts");
   const [loading, setLoading] = useState(true);
   const [notFound, setnotFound] = useState(false);
   const [heartPopPostId, setHeartPopPostId] = useState(null);
@@ -261,6 +264,29 @@ function LookFor() {
 
     getProfile();
   }, [id]);
+
+  useEffect(() => {
+    const fetchLoops = async () => {
+      if (!user) return;
+      const isFollowing = user.isFollowing;
+      const canViewProfile =
+        !user.isPrivate ||
+        isFollowing ||
+        currentUser?._id?.toString() === user._id?.toString();
+
+      if (canViewProfile) {
+        try {
+          const loopsRes = await axios.get(`${API_URL}/api/loop/user/${user._id}`, {
+            withCredentials: true,
+          });
+          setLoops(loopsRes.data.loops || []);
+        } catch (err) {
+          console.error("Failed to fetch user loops:", err);
+        }
+      }
+    };
+    fetchLoops();
+  }, [user, currentUser, id]);
 
   const isFollowing = user?.isFollowing;
 
@@ -618,12 +644,32 @@ function LookFor() {
         </div>
       )}
 
+      {canViewProfile && (
+        <div className={styles.profileTabs}>
+          <button
+            type="button"
+            className={`${styles.profileTabBtn} ${activeTab === "posts" ? styles.activeProfileTab : ""}`}
+            onClick={() => setActiveTab("posts")}
+          >
+            ▦ Posts
+          </button>
+          <button
+            type="button"
+            className={`${styles.profileTabBtn} ${activeTab === "loops" ? styles.activeProfileTab : ""}`}
+            onClick={() => setActiveTab("loops")}
+          >
+            🎬 Loops
+          </button>
+        </div>
+      )}
+
       {/* POSTS */}
       <div className={styles.postsSection}>
         <h3>Posts</h3>
 
         {canViewProfile ? (
-          user.posts?.length === 0 ? (
+          activeTab === "posts" ? (
+            user.posts?.length === 0 ? (
             <div className={styles.emptyPosts}>
               <h2>No Posts Yet</h2>
               <p>This user hasn't shared anything yet.</p>
@@ -796,6 +842,9 @@ function LookFor() {
             </div>
           )
         ) : (
+          <ShowReel loops={loops} />
+        )
+      ) : (
           <div className={styles.privateAccount}>
             <FaLock />
             <h2>Private Account</h2>

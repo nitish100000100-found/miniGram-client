@@ -34,6 +34,7 @@ function CommentPage() {
   const videoRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoop, setIsLoop] = useState(false);
   const clickTimer = useRef(null);
 
   const handleToggle = () => {
@@ -68,9 +69,35 @@ function CommentPage() {
       setPost(res.data.post);
       setCurrentUser(res.data.currentUser);
       setComments(res.data.post.comments || []);
+      setIsLoop(false);
     } catch (err) {
-      console.error(err);
-      setError(true);
+      console.log("Post comment fetch failed, trying loop...", err);
+      try {
+        const [userRes, loopRes, commentsRes] = await Promise.all([
+          axios.get(`${API_URL}/api/user/current`, { withCredentials: true }),
+          axios.get(`${API_URL}/api/loop/${postId}`, { withCredentials: true }),
+          axios.get(`${API_URL}/api/loop/getallcomments/${postId}`, { withCredentials: true }),
+        ]);
+
+        const user = userRes.data.user;
+        const loop = loopRes.data.loop;
+        const loopComments = commentsRes.data.comments || [];
+
+       
+        const adaptedLoop = {
+          ...loop,
+          mediaType: "video",
+          caption: loop.description,
+        };
+
+        setPost(adaptedLoop);
+        setCurrentUser(user);
+        setComments(loopComments);
+        setIsLoop(true);
+      } catch (loopErr) {
+        console.error("Loop comment fetch failed:", loopErr);
+        setError(true);
+      }
     }
   };
 
@@ -81,37 +108,56 @@ function CommentPage() {
   const isLiked = currentUser?.likedPosts?.some(
     (id) => id.toString() === post?._id.toString()
   );
-  const isSaved = currentUser?.savedPosts?.some(
-    (id) => id.toString() === post?._id.toString()
-  );
+  const isSaved = isLoop
+    ? currentUser?.savedLoops?.some((id) => id.toString() === post?._id.toString())
+    : currentUser?.savedPosts?.some((id) => id.toString() === post?._id.toString());
 
   const handleLike = async () => {
     try {
-      await axios.post(
-        `${API_URL}/api/interaction/like/${post._id}`,
-        {},
-        { withCredentials: true }
-      );
-      
-      setCurrentUser((prev) => {
-        const liked = prev.likedPosts || [];
-        return {
-          ...prev,
-          likedPosts: isLiked
-            ? liked.filter((id) => id.toString() !== post._id.toString())
-            : [...liked, post._id],
-        };
-      });
+      if (isLoop) {
+        const res = await axios.post(
+          `${API_URL}/api/loop/like/${post._id}`,
+          {},
+          { withCredentials: true }
+        );
+        
+        setPost((prev) => {
+          const alreadyLiked = prev.likes?.some((id) => id.toString() === currentUser._id.toString());
+          const newLikes = alreadyLiked
+            ? prev.likes.filter((id) => id.toString() !== currentUser._id.toString())
+            : [...(prev.likes || []), currentUser._id];
+          return {
+            ...prev,
+            likes: newLikes,
+          };
+        });
+      } else {
+        await axios.post(
+          `${API_URL}/api/interaction/like/${post._id}`,
+          {},
+          { withCredentials: true }
+        );
+        
+        setCurrentUser((prev) => {
+          const liked = prev.likedPosts || [];
+          return {
+            ...prev,
+            likedPosts: isLiked
+              ? liked.filter((id) => id.toString() !== post._id.toString())
+              : [...liked, post._id],
+          };
+        });
 
-      setPost((prev) => {
-        const likes = prev.likes;
-        return {
-          ...prev,
-          likes: isLiked
-            ? likes.filter((id) => id.toString() !== currentUser._id.toString())
-            : [...likes, currentUser._id],
-        };
-      });
+        setPost((prev) => {
+          const likes = prev.likes;
+          return {
+            ...prev,
+            likes: isLiked
+              ? likes.filter((id) => id.toString() !== currentUser._id.toString())
+              : [...likes, currentUser._id],
+          };
+        });
+      }
     } catch (err) {
       console.error("Like interaction failed:", err);
     }
@@ -133,21 +179,39 @@ function CommentPage() {
 
   const handleSave = async () => {
     try {
-      await axios.post(
-        `${API_URL}/api/post/save/${post._id}`,
-        {},
-        { withCredentials: true }
-      );
-      
-      setCurrentUser((prev) => {
-        const saved = prev.savedPosts || [];
-        return {
-          ...prev,
-          savedPosts: isSaved
-            ? saved.filter((id) => id.toString() !== post._id.toString())
-            : [...saved, post._id],
-        };
-      });
+      if (isLoop) {
+        await axios.post(
+          `${API_URL}/api/loop/save/${post._id}`,
+          {},
+          { withCredentials: true }
+        );
+        
+        setCurrentUser((prev) => {
+          const saved = prev.savedLoops || [];
+          return {
+            ...prev,
+            savedLoops: isSaved
+              ? saved.filter((id) => id.toString() !== post._id.toString())
+              : [...saved, post._id],
+          };
+        });
+      } else {
+        await axios.post(
+          `${API_URL}/api/post/save/${post._id}`,
+          {},
+          { withCredentials: true }
+        );
+        
+        setCurrentUser((prev) => {
+          const saved = prev.savedPosts || [];
+          return {
+            ...prev,
+            savedPosts: isSaved
+              ? saved.filter((id) => id.toString() !== post._id.toString())
+              : [...saved, post._id],
+          };
+        });
+      }
     } catch (err) {
       console.error("Save interaction failed:", err);
     }
@@ -163,29 +227,38 @@ function CommentPage() {
 
     setSubmitting(true);
     try {
-      const res = await axios.post(
-        `${API_URL}/api/interaction/comment/${postId}`,
-        { text: newComment.trim() },
-        { withCredentials: true }
-      );
-      setNewComment("");
-      if (res.data.commentId) {
-        const localComment = {
-          _id: res.data.commentId,
-          text: newComment.trim(),
-          createdAt: new Date().toISOString(),
-          commentedBy: {
-            _id: currentUser._id,
-            username: currentUser.username,
-            profilePicture: currentUser.profilePicture,
-            stories: currentUser.stories || [],
-          },
-        };
-        setComments((prev) => [localComment, ...prev]);
+      if (isLoop) {
+        const res = await axios.post(
+          `${API_URL}/api/loop/comment/${postId}`,
+          { text: newComment.trim() },
+          { withCredentials: true }
+        );
+        setNewComment("");
+        setComments(res.data.comments || []);
+      } else {
+        const res = await axios.post(
+          `${API_URL}/api/interaction/comment/${postId}`,
+          { text: newComment.trim() },
+          { withCredentials: true }
+        );
+        setNewComment("");
+        if (res.data.commentId) {
+          const localComment = {
+            _id: res.data.commentId,
+            text: newComment.trim(),
+            createdAt: new Date().toISOString(),
+            commentedBy: {
+              _id: currentUser._id,
+              username: currentUser.username,
+              profilePicture: currentUser.profilePicture,
+              stories: currentUser.stories || [],
+            },
+          };
+          setComments((prev) => [localComment, ...prev]);
+        }
       }
     } catch (err) {
       console.error("Failed to post comment:", err);
-    
     } finally {
       setSubmitting(false);
     }
@@ -200,17 +273,24 @@ function CommentPage() {
     const commentId = commentToDelete;
     setCommentToDelete(null);
     try {
-      await axios.post(
-        `${API_URL}/api/interaction/delete-comment/${postId}/${commentId}`,
-        {},
-        { withCredentials: true }
-      );
+      if (isLoop) {
+        await axios.post(
+          `${API_URL}/api/loop/comment/delete/${postId}/${commentId}`,
+          {},
+          { withCredentials: true }
+        );
+      } else {
+        await axios.post(
+          `${API_URL}/api/interaction/delete-comment/${postId}/${commentId}`,
+          {},
+          { withCredentials: true }
+        );
+      }
       setComments((prev) =>
         prev.filter((c) => c._id.toString() !== commentId.toString())
       );
     } catch (err) {
       console.error("Failed to delete comment:", err);
-     
     }
   };
 
