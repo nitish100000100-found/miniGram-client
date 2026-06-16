@@ -133,19 +133,28 @@ function Notifications() {
         ) : (
           <div className={styles.content}>
             {/* Wrap follow requests at the top */}
-            <Link to="/followRequests" className={styles.followRequestsLink}>
-              <div className={styles.followRequestsWrapper}>
+            {pendingRequests.length > 0 ? (
+              <Link to="/followRequests" className={styles.followRequestsLink}>
+                <div className={styles.followRequestsWrapper}>
+                  <div className={styles.followRequestsHeader}>
+                    <div className={styles.followRequestsLeft}>
+                      <span className={styles.followRequestsTitle}>Follow Requests</span>
+                      <span className={styles.requestsBadge}>{pendingRequests.length}</span>
+                    </div>
+                    <span className={styles.viewAllText}>View All &rsaquo;</span>
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <div className={styles.followRequestsWrapper} style={{ cursor: "default" }}>
                 <div className={styles.followRequestsHeader}>
                   <div className={styles.followRequestsLeft}>
                     <span className={styles.followRequestsTitle}>Follow Requests</span>
-                    {pendingRequests.length > 0 && (
-                      <span className={styles.requestsBadge}>{pendingRequests.length}</span>
-                    )}
                   </div>
-                  <span className={styles.viewAllText}>View All &rsaquo;</span>
+                  <span className={styles.noRequestsText}>No pending requests</span>
                 </div>
               </div>
-            </Link>
+            )}
 
             {/* Recent notifications section */}
             <div className={styles.notificationsWrapper}>
