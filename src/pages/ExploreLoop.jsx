@@ -12,6 +12,8 @@ import {
   FaTrash,
   FaBookmark,
   FaRegBookmark,
+  FaChevronUp,
+  FaChevronDown,
 } from "react-icons/fa";
 import styles from "./ShowOneLoop.module.css";
 
@@ -97,6 +99,45 @@ const ExploreLoop = () => {
     if (currentIndex <= 0) return;
     setCurrentIndex(currentIndex - 1);
   };
+
+  const wheelCooldown = useRef(false);
+  const handleWheel = (e) => {
+    if (wheelCooldown.current) return;
+    if (Math.abs(e.deltaY) < 30) return;
+
+    if (e.deltaY > 0) {
+      handleNext();
+    } else {
+      handlePrev();
+    }
+
+    wheelCooldown.current = true;
+    setTimeout(() => {
+      wheelCooldown.current = false;
+    }, 800);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (
+        document.activeElement.tagName === "INPUT" ||
+        document.activeElement.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        handlePrev();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentIndex, allLoops.length]);
 
   const handleLike = async (e) => {
     if (e) e.stopPropagation();
@@ -265,6 +306,7 @@ const ExploreLoop = () => {
       className={styles.container}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onWheel={handleWheel}
     >
       {/* Background Close Click Zone */}
       <div className={styles.closeZone} onClick={() => navigate(-1)} />
@@ -277,6 +319,28 @@ const ExploreLoop = () => {
       >
         <IoClose />
       </button>
+
+      {/* Desktop Navigation Controls */}
+      <div className={styles.navControls}>
+        <button
+          onClick={handlePrev}
+          className={styles.navBtn}
+          disabled={currentIndex === 0}
+          style={{ opacity: currentIndex === 0 ? 0.3 : 1 }}
+          title="Previous Loop"
+        >
+          <FaChevronUp />
+        </button>
+        <button
+          onClick={handleNext}
+          className={styles.navBtn}
+          disabled={currentIndex === allLoops.length - 1}
+          style={{ opacity: currentIndex === allLoops.length - 1 ? 0.3 : 1 }}
+          title="Next Loop"
+        >
+          <FaChevronDown />
+        </button>
+      </div>
 
       {/* PLAYER COMPONENT */}
       <div className={styles.playerWrapper}>
