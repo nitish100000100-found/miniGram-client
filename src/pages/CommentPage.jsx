@@ -334,7 +334,7 @@ function CommentPage() {
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
             <FaArrowLeft />
           </button>
-          <h2>@{post.author?.username || "unknown"}'s {isLoop ? "loop" : "post"} comments</h2>
+          <h2>@{post.author?.username || "unknown"}'s {isLoop || post?.mediaType === "video" ? "reel" : "post"} comments</h2>
         </div>
 
         {/* SPLIT CONTAINER */}
