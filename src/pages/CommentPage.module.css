@@ -275,7 +275,9 @@
 }
 
 .liked {
-  color: #ff3040;
+  color: #ff3040 !important;
+  filter: drop-shadow(0 0 8px rgba(255, 48, 64, 0.65));
+  transform: scale(1.08);
 }
 
 .saved {

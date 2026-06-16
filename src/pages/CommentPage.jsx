@@ -105,12 +105,13 @@ function CommentPage() {
     fetchCommentsData();
   }, [postId]);
 
-  const isLiked = currentUser?.likedPosts?.some(
-    (id) => id.toString() === post?._id.toString()
-  );
+  const isLiked = isLoop
+    ? post?.likes?.some((id) => (id?._id ? id._id.toString() : id?.toString()) === currentUser?._id?.toString())
+    : currentUser?.likedPosts?.some((id) => (id?._id ? id._id.toString() : id?.toString()) === post?._id?.toString());
+
   const isSaved = isLoop
-    ? currentUser?.savedLoops?.some((id) => id.toString() === post?._id.toString())
-    : currentUser?.savedPosts?.some((id) => id.toString() === post?._id.toString());
+    ? currentUser?.savedLoops?.some((id) => (id?._id ? id._id.toString() : id?.toString()) === post?._id?.toString())
+    : currentUser?.savedPosts?.some((id) => (id?._id ? id._id.toString() : id?.toString()) === post?._id?.toString());
 
   const handleLike = async () => {
     try {
