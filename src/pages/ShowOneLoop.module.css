@@ -172,6 +172,9 @@
 }
 
 .authorSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
@@ -181,6 +184,46 @@
   gap: 10px;
   text-decoration: none;
   color: #ffffff;
+}
+
+.dotSeparator {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  user-select: none;
+}
+
+.followBtn {
+  background: transparent;
+  border: 1px solid #c084fc;
+  color: #c084fc;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.followBtn:hover {
+  background: rgba(192, 132, 252, 0.1);
+  transform: scale(1.05);
+}
+
+.followingBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.followingBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
 }
 
 .avatar {

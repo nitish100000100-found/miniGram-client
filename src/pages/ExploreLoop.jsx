@@ -48,6 +48,15 @@ const ExploreLoop = () => {
     currentUser?.savedLoops?.some(
       (id) => (id?._id ? id._id.toString() : id?.toString()) === currentLoop?._id?.toString(),
     ) || false;
+  const authorId = currentLoop?.author?._id?.toString();
+  const isFollowing =
+    currentUser?.following?.some(
+      (id) => (id?._id ? id._id.toString() : id?.toString()) === authorId,
+    ) || false;
+  const isRequested =
+    currentUser?.sendRequest?.some(
+      (id) => (id?._id ? id._id.toString() : id?.toString()) === authorId,
+    ) || false;
 
   const handleTouchStart = (e) => {
     touchStartY.current = e.touches[0].clientY;
@@ -236,6 +245,59 @@ const ExploreLoop = () => {
     }
   };
 
+  const handleFollowToggle = async (e) => {
+    if (e) e.stopPropagation();
+    if (!currentLoop?.author?._id || !currentUser?._id) return;
+    const authorId = currentLoop.author._id.toString();
+
+    try {
+      if (isFollowing) {
+        await axios.post(
+          `${API_URL}/api/interaction/unfollowsomeone/${authorId}`,
+          { fromUserId: currentUser._id },
+          { withCredentials: true }
+        );
+        setCurrentUser((prev) => ({
+          ...prev,
+          following: (prev.following || []).filter(
+            (id) => (id?._id ? id._id.toString() : id?.toString()) !== authorId
+          ),
+        }));
+      } else if (isRequested) {
+        await axios.post(
+          `${API_URL}/api/interaction/cancelsendrequest/${authorId}`,
+          { fromUserId: currentUser._id },
+          { withCredentials: true }
+        );
+        setCurrentUser((prev) => ({
+          ...prev,
+          sendRequest: (prev.sendRequest || []).filter(
+            (id) => (id?._id ? id._id.toString() : id?.toString()) !== authorId
+          ),
+        }));
+      } else {
+        const res = await axios.post(
+          `${API_URL}/api/interaction/followsomeone/${authorId}`,
+          { fromUserId: currentUser._id },
+          { withCredentials: true }
+        );
+        if (res.data.followed) {
+          setCurrentUser((prev) => ({
+            ...prev,
+            following: [...(prev.following || []), authorId],
+          }));
+        } else {
+          setCurrentUser((prev) => ({
+            ...prev,
+            sendRequest: [...(prev.sendRequest || []), authorId],
+          }));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to toggle follow status:", err);
+    }
+  };
+
   const handleDoubleClickLike = () => {
     setShowHeartPop(true);
     setTimeout(() => {
@@ -394,6 +456,17 @@ const ExploreLoop = () => {
                   {currentLoop.author?.username}
                 </span>
               </Link>
+              {!isOwner && (
+                <>
+                  <span className={styles.dotSeparator}>•</span>
+                  <button
+                    onClick={handleFollowToggle}
+                    className={isFollowing ? styles.followingBtn : styles.followBtn}
+                  >
+                    {isFollowing ? "Following" : isRequested ? "Requested" : "Follow"}
+                  </button>
+                </>
+              )}
             </div>
             {(currentLoop.caption || currentLoop.description) && (
               <p className={styles.caption}>{currentLoop.caption || currentLoop.description}</p>
