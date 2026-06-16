@@ -22,7 +22,6 @@ const LookForHighlight = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedCoverFile, setSelectedCoverFile] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
 
   const fetchInitialData = async () => {
     try {
@@ -78,7 +77,7 @@ const LookForHighlight = () => {
 
   const handleTap = (e) => {
     if (activeModal) return;
-    if (e.target.closest("button, a, video, input, form")) return;
+    if (e.target.closest("button, a, input, form")) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     if (x < rect.width / 2) {
@@ -121,19 +120,6 @@ const LookForHighlight = () => {
       console.error(error);
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  const handleVideoToggle = (e) => {
-    e.stopPropagation();
-    const video = e.currentTarget;
-    if (!video) return;
-    if (video.paused) {
-      video.play().catch(() => {});
-      setIsPaused(false);
-    } else {
-      video.pause();
-      setIsPaused(true);
     }
   };
 
@@ -337,13 +323,7 @@ const LookForHighlight = () => {
               playsInline
               muted={isMuted}
               className={styles.storyMedia}
-              onClick={handleVideoToggle}
             />
-            {isPaused && (
-              <div className={styles.videoPlayOverlay}>
-                <FaPlay size={20} style={{ marginLeft: "3px" }} />
-              </div>
-            )}
           </div>
         )}
       </div>

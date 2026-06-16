@@ -187,60 +187,6 @@
   right: calc(50% - 230px - 70px);
 }
 
-@media (max-width: 768px) {
-  .leftArrow {
-    left: 16px;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(4px);
-    z-index: 110;
-  }
-  .rightArrow {
-    right: 16px;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(4px);
-    z-index: 110;
-  }
-  .storyWrapper {
-    max-width: 100%;
-    height: 100%;
-    border-radius: 0;
-    border: none;
-  }
-  .topBar {
-    top: env(safe-area-inset-top, 10px);
-    left: 0;
-    transform: none;
-    max-width: 100%;
-    border-radius: 0;
-    padding: 0 16px;
-  }
-  .storyCounter {
-    top: auto;
-    bottom: calc(130px + env(safe-area-inset-bottom, 0px));
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .bottomActions {
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    width: calc(100% - 24px);
-    background: rgba(15, 8, 30, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    padding: 12px 8px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px 12px;
-    box-sizing: border-box;
-  }
-  .actionBtnWithLabel {
-    max-width: 70px;
-    min-width: 60px;
-  }
-}
-
 /* Loading & Empty States */
 .loading {
   position: fixed;
@@ -372,18 +318,6 @@
   margin-right: 6px;
 }
 
-@media (max-width: 768px) {
-  .btnLabel {
-    display: block !important;
-    font-size: 8px;
-    margin-right: 0;
-    text-align: center;
-    color: #e5e7eb;
-    margin-top: 2px;
-    line-height: 1;
-  }
-}
-
 .renameInput {
   width: 100%;
   padding: 10px 14px;
@@ -485,4 +419,68 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   z-index: 103;
 }
+
+@media (max-width: 768px) {
+  .leftArrow {
+    left: 16px;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 110;
+  }
+  .rightArrow {
+    right: 16px;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 110;
+  }
+  .storyWrapper {
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+  }
+  .topBar {
+    top: env(safe-area-inset-top, 10px);
+    left: 0;
+    transform: none;
+    max-width: 100%;
+    border-radius: 0;
+    padding: 0 16px;
+  }
+  .storyCounter {
+    top: auto;
+    bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .bottomActions {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: calc(100% - 24px);
+    background: rgba(15, 8, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 12px 8px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 12px;
+    box-sizing: border-box;
+  }
+  .actionBtnWithLabel {
+    max-width: 70px;
+    min-width: 60px;
+  }
+  .btnLabel {
+    display: block !important;
+    font-size: 8px;
+    margin-right: 0;
+    text-align: center;
+    color: #e5e7eb;
+    margin-top: 2px;
+    line-height: 1;
+  }
+}
+
 

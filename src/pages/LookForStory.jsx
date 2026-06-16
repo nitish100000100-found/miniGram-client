@@ -23,7 +23,6 @@ const LookForStory = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
 
   const fetchInitialData = async () => {
     try {
@@ -101,7 +100,7 @@ const LookForStory = () => {
 
   const handleTap = (e) => {
     if (showViewers || showConfirmDelete) return;
-    if (e.target.closest("button, a, video")) return;
+    if (e.target.closest("button, a")) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const half = rect.width / 2;
@@ -109,19 +108,6 @@ const LookForStory = () => {
       handlePrev();
     } else {
       handleNext();
-    }
-  };
-
-  const handleVideoToggle = (e) => {
-    e.stopPropagation();
-    const video = e.currentTarget;
-    if (!video) return;
-    if (video.paused) {
-      video.play().catch(() => {});
-      setIsPaused(false);
-    } else {
-      video.pause();
-      setIsPaused(true);
     }
   };
 
@@ -239,13 +225,7 @@ const LookForStory = () => {
               playsInline
               muted={isMuted}
               className={styles.storyMedia}
-              onClick={handleVideoToggle}
             />
-            {isPaused && (
-              <div className={styles.videoPlayOverlay}>
-                <FaPlay size={20} style={{ marginLeft: "3px" }} />
-              </div>
-            )}
           </div>
         )}
       </div>
