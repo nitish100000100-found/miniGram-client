@@ -442,11 +442,11 @@ function MyInfo() {
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((post) => {
                   const isLiked = user?.likedPosts?.some(
-                    (id) => id.toString() === post._id.toString(),
+                    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString(),
                   );
 
                   const isSaved = user?.savedPosts?.some(
-                    (id) => id.toString() === post._id.toString(),
+                    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString(),
                   );
 
                   return (

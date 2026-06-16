@@ -680,11 +680,11 @@ function LookFor() {
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((post) => {
                   const isLiked = currentUser?.likedPosts?.some(
-                    (id) => id.toString() === post._id.toString(),
+                    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString(),
                   );
 
                   const isSaved = currentUser?.savedPosts?.some(
-                    (id) => id.toString() === post._id.toString(),
+                    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString(),
                   );
 
                   return (

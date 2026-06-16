@@ -31,10 +31,10 @@ function PostCard({
 
   // Derive liked and saved status directly from currentUser and post props
   const isLiked = currentUser?.likedPosts?.some(
-    (id) => id.toString() === post._id.toString(),
+    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString(),
   );
   const isSaved = currentUser?.savedPosts?.some(
-    (id) => id.toString() === post._id.toString(),
+    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString(),
   );
   const likesCount = post.likes?.length || 0;
 

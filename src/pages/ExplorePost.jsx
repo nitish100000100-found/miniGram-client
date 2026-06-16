@@ -238,10 +238,10 @@ function ExplorePost() {
               if (!post.author) return null;
 
               const isLiked = currentUser?.likedPosts?.some(
-                (id) => id.toString() === post._id.toString()
+                (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString()
               );
               const isSaved = currentUser?.savedPosts?.some(
-                (id) => id.toString() === post._id.toString()
+                (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString()
               );
 
               const isMe = post.author._id?.toString() === currentUser?._id?.toString();

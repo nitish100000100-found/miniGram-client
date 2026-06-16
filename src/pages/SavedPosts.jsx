@@ -138,7 +138,9 @@ const SavedPosts = () => {
       clickTimer.current = null;
     }
 
-    const isLiked = currentUser?.likedPosts?.includes(post._id);
+    const isLiked = currentUser?.likedPosts?.some(
+      (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString()
+    );
 
     if (!isLiked) {
       handleLike(post);
@@ -152,7 +154,9 @@ const SavedPosts = () => {
   };
   const handleLike = async (post) => {
     if (!currentUser) return;
-    const isLiked = currentUser?.likedPosts?.includes(post._id);
+    const isLiked = currentUser?.likedPosts?.some(
+      (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString()
+    );
     try {
       await axios.post(
         `${API_URL}/api/interaction/like/${post._id}`,
@@ -193,7 +197,9 @@ const SavedPosts = () => {
 
   const handleSave = async (post) => {
     if (!currentUser) return;
-    const isSaved = currentUser?.savedPosts?.includes(post._id);
+    const isSaved = currentUser?.savedPosts?.some(
+      (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString()
+    );
     try {
       await axios.post(
         `${API_URL}/api/post/save/${post._id}`,
@@ -278,8 +284,12 @@ const SavedPosts = () => {
                   const author = post.author;
                   if (!author) return null;
 
-                  const isLiked = currentUser?.likedPosts?.includes(post._id);
-                  const isSaved = currentUser?.savedPosts?.includes(post._id);
+                  const isLiked = currentUser?.likedPosts?.some(
+                    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString()
+                  );
+                  const isSaved = currentUser?.savedPosts?.some(
+                    (id) => (id?._id ? id._id.toString() : id?.toString()) === post._id.toString()
+                  );
                   const likesCount = post.likes?.length || 0;
                   const isMe =
                     author._id?.toString() === currentUser?._id?.toString();
