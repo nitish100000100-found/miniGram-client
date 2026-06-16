@@ -102,6 +102,7 @@ function LookFor() {
   const [heartPopPostId, setHeartPopPostId] = useState(null);
   const [showBlockPop, setShowBlockPop] = useState(false);
   const [showBlockSuccess, setShowBlockSuccess] = useState(false);
+  const [showUnfollowPop, setShowUnfollowPop] = useState(false);
 
   const handleBlockUser = async () => {
     try {
@@ -342,6 +343,14 @@ function LookFor() {
     }
   };
 
+  const handleUnfollowClick = () => {
+    if (user?.isPrivate) {
+      setShowUnfollowPop(true);
+    } else {
+      unfollow();
+    }
+  };
+
   const cancelRequest = async () => {
     try {
       await axios.post(
@@ -468,7 +477,7 @@ function LookFor() {
           {/* FOLLOW BUTTONS */}
           <div className={styles.actions}>
             {isFollowing ? (
-              <button className={styles.followingBtn} onClick={unfollow}>
+              <button className={styles.followingBtn} onClick={handleUnfollowClick}>
                 Unfollow
               </button>
             ) : requestSent ? (
@@ -819,6 +828,32 @@ function LookFor() {
           <div className={styles.modal}>
             <h3>Blocked</h3>
             <p>User blocked successfully.</p>
+          </div>
+        </div>
+      )}
+
+      {showUnfollowPop && (
+        <div className={styles.overlay}>
+          <div className={styles.modal}>
+            <h3>Unfollow @{user.username}?</h3>
+            <p>If you change your mind, you will have to request to follow again.</p>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.modalCancelBtn}
+                onClick={() => setShowUnfollowPop(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.modalConfirmBtn}
+                onClick={() => {
+                  setShowUnfollowPop(false);
+                  unfollow();
+                }}
+              >
+                Unfollow
+              </button>
+            </div>
           </div>
         </div>
       )}
