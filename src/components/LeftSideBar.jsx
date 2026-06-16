@@ -1,10 +1,10 @@
 import ProfileCard from "./ProfileCard.jsx";
 import SuggestedUsers from "./SuggestedUsers.jsx";
 import styles from "./LeftSidebar.module.css";
-import { FaRegHeart, FaCompass, FaHome, FaPlus } from "react-icons/fa";
+import { FaRegHeart, FaCompass, FaHome, FaPlus, FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-function LeftSidebar() {
+function LeftSidebar({ unreadCount }) {
   return (
     <div className={styles.sidebar}>
       <div className={styles.topBar}>
@@ -15,15 +15,22 @@ function LeftSidebar() {
           </div>
         </Link>
 
-        <button className={styles.heartBtn}>
-          <FaRegHeart />
-        </button>
+        <Link to="/notifications" className={styles.heartLink}>
+          <button className={`${styles.heartBtn} ${unreadCount > 0 ? styles.heartGlow : ""}`}>
+            <FaRegHeart />
+            {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
+          </button>
+        </Link>
       </div>
 
       {/* Navigation Links */}
       <div className={styles.navLinks}>
          <ProfileCard />
       
+        <Link to="/searchUser" className={styles.navItem}>
+          <FaSearch className={styles.navIcon} />
+          <span>Search Users</span>
+        </Link>
         <Link to="/explorePost" className={styles.navItem}>
           <FaCompass className={styles.navIcon} />
           <span>Explore Posts</span>

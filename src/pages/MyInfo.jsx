@@ -67,6 +67,30 @@ function MyInfo() {
     });
   }, [playId]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!playId) return;
+
+      const video = document.getElementById(playId);
+      if (!video) return;
+
+      const rect = video.getBoundingClientRect();
+
+      // Pause if video is far outside the viewport
+      if (
+        rect.bottom < -200 || // 200px above screen
+        rect.top > window.innerHeight + 200 // 200px below screen
+      ) {
+        video.pause();
+        setPlayId(null);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [playId]);
+
   
 
   const [user, setUser] = useState(null);

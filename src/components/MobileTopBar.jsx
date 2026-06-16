@@ -4,7 +4,7 @@ import { FaRegHeart } from "react-icons/fa";
 import { FiCompass } from "react-icons/fi";
 import { BiMessageRounded } from "react-icons/bi";
 
-function MobileTopBar() {
+function MobileTopBar({ unreadCount }) {
   return (
     <div className={styles.topBar}>
       <div className={styles.brand}>
@@ -16,7 +16,10 @@ function MobileTopBar() {
         <Link to="/explorePost">
           <FiCompass />
         </Link>
-        <FaRegHeart />
+        <Link to="/notifications" className={styles.heartLink}>
+          <FaRegHeart className={unreadCount > 0 ? styles.heartGlow : ""} />
+          {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
+        </Link>
         <BiMessageRounded />
       </div>
     </div>

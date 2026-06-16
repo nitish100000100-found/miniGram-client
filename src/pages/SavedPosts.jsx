@@ -11,7 +11,6 @@ import {
   FaRegPaperPlane,
   FaRegBookmark,
   FaBookmark,
-  FaTrash,
   FaPlay,
   FaVolumeMute,
   FaVolumeUp,
@@ -28,8 +27,6 @@ const SavedPosts = () => {
   const [playId, setPlayId] = useState(null);
   const [muteId, setMuteId] = useState(null);
   const [error, setError] = useState("");
-
-  const [deletePopId, setDeletePopId] = useState(null);
 
   const [heartPops, setHeartPops] = useState(null);
   const clickTimer = useRef(null);
@@ -66,6 +63,30 @@ const SavedPosts = () => {
         video.pause();
       }
     });
+  }, [playId]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!playId) return;
+
+      const video = document.getElementById(playId);
+      if (!video) return;
+
+      const rect = video.getBoundingClientRect();
+
+      // Pause if video is far outside the viewport
+      if (
+        rect.bottom < -200 || // 200px above screen
+        rect.top > window.innerHeight + 200 // 200px below screen
+      ) {
+        video.pause();
+        setPlayId(null);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [playId]);
 
   useEffect(() => {
@@ -197,35 +218,6 @@ const SavedPosts = () => {
     }
   };
 
-  const handleConfirmDelete = async (postId) => {
-    try {
-      await axios.post(
-        `${API_URL}/api/post/delete/${postId}`,
-        {},
-        { withCredentials: true },
-      );
-      setPosts((prevPosts) =>
-        prevPosts.filter((p) => p._id.toString() !== postId.toString()),
-      );
-      setCurrentUser((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          savedPosts: (prev.savedPosts || []).filter(
-            (id) => id.toString() !== postId.toString(),
-          ),
-          likedPosts: (prev.likedPosts || []).filter(
-            (id) => id.toString() !== postId.toString(),
-          ),
-        };
-      });
-    } catch (err) {
-      console.error("Delete post failed:", err);
-    } finally {
-      setDeletePopId(null);
-    }
-  };
-
   if (loading) {
     return (
       <div className={styles.loaderContainer}>
@@ -293,14 +285,6 @@ const SavedPosts = () => {
                         </Link>
                       </div>
                     </div>
-                    {isMe && (
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => setDeletePopId(post._id)}
-                      >
-                        <FaTrash />
-                      </button>
-                    )}
                   </div>
 
                   {/* Post Media */}
@@ -427,28 +411,6 @@ const SavedPosts = () => {
         </div>
       </div>
 
-      {deletePopId && (
-        <div className={styles.overlay}>
-          <div className={styles.modal}>
-            <h3>Delete Post</h3>
-            <p>Are you sure you want to delete this post?</p>
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setDeletePopId(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.confirmBtn}
-                onClick={() => handleConfirmDelete(deletePopId)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

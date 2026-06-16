@@ -7,10 +7,10 @@ import styles from "./MobileLayout.module.css";
 
 
 
-function MobileLayout() {
+function MobileLayout({ unreadCount }) {
   return (
     <div className={styles.mobileLayout}>
-      <MobileTopBar />
+      <MobileTopBar unreadCount={unreadCount} />
 
       <Feed />
 

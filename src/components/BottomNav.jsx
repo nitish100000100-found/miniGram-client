@@ -38,7 +38,7 @@ function BottomNav() {
       <Link to="/" title="Home">
         <FiHome />
       </Link>
-      <Link to="/" title="Serach">
+      <Link to="/searchUser" title="Search">
         <FiSearch />
       </Link>
       <Link to="/addPost" title="Add Post">

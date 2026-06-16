@@ -4,10 +4,10 @@ import MessagesSideBar from "./MessagesSideBar.jsx";
 import styles from "./DesktopLayout.module.css";
 import BottomNav from "./BottomNav.jsx";
 
-function DesktopLayout() {
+function DesktopLayout({ unreadCount }) {
   return (
     <div className={styles.desktopLayout}>
-      <LeftSideBar />
+      <LeftSideBar unreadCount={unreadCount} />
       <div className={styles.feedSection}>
         <Feed />
       </div>

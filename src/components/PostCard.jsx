@@ -9,7 +9,6 @@ import {
   FaRegPaperPlane,
   FaRegBookmark,
   FaBookmark,
-  FaTrash,
   FaPlay,
   FaVolumeMute,
   FaVolumeUp,
@@ -29,24 +28,6 @@ function PostCard({
   onMuteToggle,
 }) {
   const [showHeartPop, setShowHeartPop] = useState(false);
-  const [showDeletePop, setShowDeletePop] = useState(false);
-
-  const handleConfirmDelete = async () => {
-    try {
-      await axios.post(
-        `${API_URL}/api/post/delete/${post._id}`,
-        {},
-        { withCredentials: true },
-      );
-      setPosts((prevPosts) =>
-        prevPosts.filter((p) => p._id.toString() !== post._id.toString()),
-      );
-    } catch (err) {
-      console.error("Delete post failed:", err);
-    } finally {
-      setShowDeletePop(false);
-    }
-  };
 
   // Derive liked and saved status directly from currentUser and post props
   const isLiked = currentUser?.likedPosts?.some(
@@ -177,14 +158,6 @@ function PostCard({
             </Link>
           </div>
         </div>
-        {isMe && (
-          <button
-            className={styles.deleteBtn}
-            onClick={() => setShowDeletePop(true)}
-          >
-            <FaTrash />
-          </button>
-        )}
       </div>
 
       {/* Post Media */}
@@ -283,28 +256,6 @@ function PostCard({
             : "JUST NOW"}
         </div>
       </div>
-      {showDeletePop && (
-        <div className={styles.overlay}>
-          <div className={styles.modal}>
-            <h3>Delete Post</h3>
-            <p>Are you sure you want to delete this post?</p>
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setShowDeletePop(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.confirmBtn}
-                onClick={handleConfirmDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

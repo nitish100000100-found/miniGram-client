@@ -27,9 +27,27 @@ import LookForHighlight from './pages/LookForHighlight.jsx';
 import Settings from './pages/Settings.jsx';
 import BlockedUsers from './pages/BlockedUsers.jsx';
 import SavedPosts from './pages/SavedPosts.jsx';
+import SearchUser from './pages/SearchUser.jsx';
+import Notifications from './pages/Notifications.jsx';
+import FollowRequests from './pages/FollowRequests.jsx';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> , loader: protectedLoader},
+  {
+    path: "/notifications",
+    element: <Notifications />,
+    loader: protectedLoader,
+  },
+  {
+    path: "/followRequests",
+    element: <FollowRequests />,
+    loader: protectedLoader,
+  },
+  {
+    path: "/searchUser",
+    element: <SearchUser />,
+    loader: protectedLoader
+  },
   {
     path: "/lookForHighlight/:highlightId/:storyId",
     element: <LookForHighlight />,
