@@ -119,6 +119,16 @@ const ShowOneLoop = () => {
     }
   }, [loopId]);
 
+  useEffect(() => {
+    if (videoRef.current && currentLoop) {
+      videoRef.current.load();
+      videoRef.current.play().catch((err) => {
+        console.warn("Autoplay was prevented:", err);
+      });
+      setIsPaused(false);
+    }
+  }, [currentIndex, currentLoop]);
+
   const handleNext = () => {
     if (currentIndex >= allLoops.length - 1) return;
     setCurrentIndex(currentIndex + 1);
