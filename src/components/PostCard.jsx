@@ -132,7 +132,7 @@ function PostCard({
 
   const author = post.author;
   if (!author) return null;
-  const isMe = author._id.toString() === currentUser?._id?.toString();
+  const isMe = author._id?.toString() === currentUser?._id?.toString();
   const activeStory = author.stories?.find((s) => s && s._id);
   const hasAuthorStory = !!activeStory;
   const authorProfileLink = isMe ? "/myInfo" : `/lookFor/${author._id}`;

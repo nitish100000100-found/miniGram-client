@@ -244,7 +244,7 @@ function ExplorePost() {
                 (id) => id.toString() === post._id.toString()
               );
 
-              const isMe = post.author._id.toString() === currentUser?._id?.toString();
+              const isMe = post.author._id?.toString() === currentUser?._id?.toString();
               const activeStory = post.author.stories?.find((s) => s && s._id);
               const hasAuthorStory = !!activeStory;
               const authorProfileLink = isMe ? "/myInfo" : `/lookFor/${post.author._id}`;

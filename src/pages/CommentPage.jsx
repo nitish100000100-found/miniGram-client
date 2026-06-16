@@ -453,7 +453,7 @@ function CommentPage() {
                 ) : (
                   comments.map((comment) => {
                     if (!comment.commentedBy) return null;
-                    const isCommenterMe = comment.commentedBy._id.toString() === currentUser?._id?.toString();
+                    const isCommenterMe = comment.commentedBy._id?.toString() === currentUser?._id?.toString();
                     const commenterProfileLink = isCommenterMe ? "/myInfo" : `/lookFor/${comment.commentedBy._id}`;
 
                     const canDelete = isPostAuthorMe || isCommenterMe;
