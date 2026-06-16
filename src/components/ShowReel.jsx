@@ -36,7 +36,6 @@ const ShowReel = ({ loops = [] }) => {
           />
           <div className={styles.loopOverlay}>
             <FaPlay />
-            <span>{loop.views || 0}</span>
           </div>
         </Link>
       ))}
