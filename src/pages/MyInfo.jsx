@@ -94,8 +94,6 @@ function MyInfo() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [playId]);
 
-  
-
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [heartPopPostId, setHeartPopPostId] = useState(null);
@@ -108,7 +106,7 @@ function MyInfo() {
       await axios.post(
         `${API_URL}/api/post/delete/${postToDeleteId}`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setUser((prev) => {
         if (!prev) return prev;
@@ -119,7 +117,6 @@ function MyInfo() {
       });
     } catch (err) {
       console.error("Delete post failed:", err);
-      
     } finally {
       setShowDeletePop(false);
       setPostToDeleteId(null);
@@ -194,7 +191,6 @@ function MyInfo() {
     }
   };
 
- 
   const handleShare = (post) => console.log("Share:", post);
 
   const handleSave = async (postId, isSaved) => {
@@ -222,7 +218,6 @@ function MyInfo() {
       console.error("Save interaction failed:", err);
     }
   };
-
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -252,9 +247,12 @@ function MyInfo() {
     const fetchLoops = async () => {
       if (!user) return;
       try {
-        const loopsRes = await axios.get(`${API_URL}/api/loop/user/${user._id}`, {
-          withCredentials: true,
-        });
+        const loopsRes = await axios.get(
+          `${API_URL}/api/loop/user/${user._id}`,
+          {
+            withCredentials: true,
+          },
+        );
         setLoops(loopsRes.data.loops || []);
       } catch (err) {
         console.error("Failed to fetch user loops:", err);
@@ -499,7 +497,9 @@ function MyInfo() {
 
                       <div
                         className={`${styles.postMediaContainer} ${styles.reel}`}
-                        onDoubleClick={() => handleDoubleClick(post._id, isLiked)}
+                        onDoubleClick={() =>
+                          handleDoubleClick(post._id, isLiked)
+                        }
                       >
                         {post.mediaType === "image" ? (
                           <img
@@ -507,36 +507,48 @@ function MyInfo() {
                             alt={post.caption || "Post"}
                             className={styles.postImage}
                           />
-                      ) : (
-                        <div className={styles.videoWrapper}>
-                          <video
-                            id={post._id}
-                            src={post.mediaUrl}
-                            className={styles.postImage}
-                            muted={muteId !== post._id}
-                            loop
-                            playsInline
-                            onClick={() => handlePlayVideoWithTimer(post._id)}
-                          />
-                          {playId !== post._id && (
-                            <div className={styles.videoPlayOverlay} onClick={() => handlePlayVideoWithTimer(post._id)}>
-                              <FaPlay size={18} />
-                            </div>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMuteVideo(post._id);
-                            }}
-                            className={styles.videoMuteBtn}
-                          >
-                            {muteId === post._id ? <FaVolumeUp /> : <FaVolumeMute />}
-                          </button>
-                        </div>
-                      )}
+                        ) : (
+                          <div className={styles.videoWrapper}>
+                            <video
+                              id={post._id}
+                              src={post.mediaUrl}
+                              className={styles.postImage}
+                              muted={muteId !== post._id}
+                              loop
+                              playsInline
+                              onClick={() => handlePlayVideoWithTimer(post._id)}
+                            />
+                            {playId !== post._id && (
+                              <div
+                                className={styles.videoPlayOverlay}
+                                onClick={() =>
+                                  handlePlayVideoWithTimer(post._id)
+                                }
+                              >
+                                <FaPlay size={18} />
+                              </div>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMuteVideo(post._id);
+                              }}
+                              className={styles.videoMuteBtn}
+                            >
+                              {muteId === post._id ? (
+                                <FaVolumeUp />
+                              ) : (
+                                <FaVolumeMute />
+                              )}
+                            </button>
+                          </div>
+                        )}
                         {heartPopPostId === post._id && (
                           <div className={styles.heartOverlay}>
-                            <FaHeart size={70} className={styles.popHeartIcon} />
+                            <FaHeart
+                              size={70}
+                              className={styles.popHeartIcon}
+                            />
                           </div>
                         )}
                       </div>
@@ -617,11 +629,17 @@ function MyInfo() {
             <div className={styles.modalActions}>
               <button
                 className={styles.cancelBtn}
-                onClick={() => { setShowDeletePop(false); setPostToDeleteId(null); }}
+                onClick={() => {
+                  setShowDeletePop(false);
+                  setPostToDeleteId(null);
+                }}
               >
                 Cancel
               </button>
-              <button className={styles.confirmBtn} onClick={handleConfirmDelete}>
+              <button
+                className={styles.confirmBtn}
+                onClick={handleConfirmDelete}
+              >
                 Delete
               </button>
             </div>

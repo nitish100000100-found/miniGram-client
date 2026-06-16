@@ -80,6 +80,17 @@ const ShowOneLoop = () => {
 
       setCurrentUser(user);
 
+      if (!initialLoop) {
+        setAllLoops([]);
+        return;
+      }
+
+      if (!initialLoop.author?._id) {
+        setAllLoops([initialLoop]);
+        setCurrentIndex(0);
+        return;
+      }
+
       // Fetch all loops of the loop author
       const loopsRes = await axios.get(
         `${API_URL}/api/loop/user/${initialLoop.author._id}`,
@@ -320,7 +331,7 @@ const ShowOneLoop = () => {
           <div className={styles.bottomMeta}>
             <div className={styles.authorSection}>
               <Link
-                to={isOwner ? "/myInfo" : `/lookFor/${currentLoop.author._id}`}
+                to={isOwner ? "/myInfo" : `/lookFor/${currentLoop?.author?._id}`}
                 className={styles.authorLink}
               >
                 <img

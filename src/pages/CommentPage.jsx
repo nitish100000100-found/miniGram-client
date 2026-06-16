@@ -333,7 +333,7 @@ function CommentPage() {
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
             <FaArrowLeft />
           </button>
-          <h2>@{post.author.username}'s post comments</h2>
+          <h2>@{post.author?.username || "unknown"}'s post comments</h2>
         </div>
 
         {/* SPLIT CONTAINER */}
@@ -344,12 +344,12 @@ function CommentPage() {
             <div className={styles.postAuthorHeader}>
               <Link to={authorProfileLink} className={styles.authorLink}>
                 <img
-                  src={post.author.profilePicture || "/insta.webp"}
-                  alt={post.author.username}
+                  src={post.author?.profilePicture || "/insta.webp"}
+                  alt={post.author?.username || "user"}
                   className={styles.authorAvatar}
                 />
                 <span className={styles.authorUsername}>
-                  {post.author.username}
+                  {post.author?.username || "unknown"}
                 </span>
               </Link>
             </div>
@@ -427,7 +427,7 @@ function CommentPage() {
               </Link>
               <div className={styles.captionRow}>
                 <Link to={authorProfileLink} className={styles.captionUser}>
-                  {post.author.username}
+                  {post.author?.username || "unknown"}
                 </Link>
                 <span className={styles.captionText}>{post.caption}</span>
               </div>

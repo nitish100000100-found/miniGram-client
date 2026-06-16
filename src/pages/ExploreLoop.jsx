@@ -308,7 +308,7 @@ const ExploreLoop = () => {
           <div className={styles.bottomMeta}>
             <div className={styles.authorSection}>
               <Link
-                to={isOwner ? "/myInfo" : `/lookFor/${currentLoop.author._id}`}
+                to={isOwner ? "/myInfo" : `/lookFor/${currentLoop?.author?._id}`}
                 className={styles.authorLink}
               >
                 <img
