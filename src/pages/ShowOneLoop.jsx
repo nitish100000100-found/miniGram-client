@@ -28,7 +28,7 @@ const ShowOneLoop = () => {
   const [allLoops, setAllLoops] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -122,10 +122,6 @@ const ShowOneLoop = () => {
   useEffect(() => {
     if (videoRef.current && currentLoop) {
       videoRef.current.load();
-      videoRef.current.play().catch((err) => {
-        console.warn("Autoplay was prevented:", err);
-      });
-      setIsPaused(false);
     }
   }, [currentIndex, currentLoop]);
 
@@ -389,6 +385,8 @@ const ShowOneLoop = () => {
             playsInline
             muted={isMuted}
             onClick={handleVideoClick}
+            onPlay={() => setIsPaused(false)}
+            onPause={() => setIsPaused(true)}
           />
 
           {isPaused && (
