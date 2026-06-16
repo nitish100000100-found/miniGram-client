@@ -131,6 +131,30 @@ const ShowOneLoop = () => {
     }
   }, [currentIndex, currentLoop]);
 
+  useEffect(() => {
+    const fetchCurrentLoopDetails = async () => {
+      if (!currentLoop || currentLoop.mediaUrl) return;
+      try {
+        const res = await axios.get(`${API_URL}/api/loop/${currentLoop._id}`, {
+          withCredentials: true,
+        });
+        const fullLoop = res.data.loop;
+        if (fullLoop) {
+          setAllLoops((prev) => {
+            const updated = [...prev];
+            if (updated[currentIndex]?._id === fullLoop._id) {
+              updated[currentIndex] = fullLoop;
+            }
+            return updated;
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load details for loop:", err);
+      }
+    };
+    fetchCurrentLoopDetails();
+  }, [currentIndex, currentLoop]);
+
   const handleNext = () => {
     if (currentIndex >= allLoops.length - 1) return;
     setCurrentIndex(currentIndex + 1);
