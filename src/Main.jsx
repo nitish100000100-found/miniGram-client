@@ -30,6 +30,7 @@ import SavedPosts from './pages/SavedPosts.jsx';
 import SearchUser from './pages/SearchUser.jsx';
 import Notifications from './pages/Notifications.jsx';
 import FollowRequests from './pages/FollowRequests.jsx';
+import SuggestedUsers from './components/SuggestedUsers.jsx';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> , loader: protectedLoader},
@@ -41,6 +42,11 @@ const router = createBrowserRouter([
   {
     path: "/followRequests",
     element: <FollowRequests />,
+    loader: protectedLoader,
+  },
+  {
+    path: "/suggested-users",
+    element: <SuggestedUsers />,
     loader: protectedLoader,
   },
   {

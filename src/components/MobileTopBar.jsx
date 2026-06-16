@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import styles from "./MobileTopBar.module.css";
 import { FaRegHeart } from "react-icons/fa";
-import { FiCompass } from "react-icons/fi";
+import { FiCompass, FiUserPlus } from "react-icons/fi";
 import { BiMessageRounded } from "react-icons/bi";
 
 function MobileTopBar({ unreadCount }) {
@@ -13,10 +13,13 @@ function MobileTopBar({ unreadCount }) {
       </div>
 
       <div className={styles.right}>
-        <Link to="/explorePost">
+        <Link to="/suggested-users" title="Suggested Users">
+          <FiUserPlus />
+        </Link>
+        <Link to="/explorePost" title="Explore">
           <FiCompass />
         </Link>
-        <Link to="/notifications" className={styles.heartLink}>
+        <Link to="/notifications" className={styles.heartLink} title="Notifications">
           <FaRegHeart className={unreadCount > 0 ? styles.heartGlow : ""} />
           {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
         </Link>

@@ -1,15 +1,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { FaTimes } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaTimes, FaArrowLeft, FaSyncAlt } from "react-icons/fa";
 import styles from "./SuggestedUsers.module.css";
-import { FaSyncAlt } from "react-icons/fa";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function SuggestedUsers() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [notification, setNotification] = useState(null);
+  
+  const isPage = window.location.pathname === "/suggested-users";
 
   const fetchSuggestedUsers = async () => {
     try {
@@ -65,9 +67,16 @@ function SuggestedUsers() {
   }, []);
 
   return (
-    <div className={styles.suggestedUsers}>
+    <div className={`${styles.suggestedUsers} ${isPage ? styles.suggestedUsersPage : ""}`}>
       <div className={styles.header}>
-        <h3>Suggested Users</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {isPage && (
+            <button onClick={() => navigate(-1)} className={styles.backBtn} title="Go back">
+              <FaArrowLeft />
+            </button>
+          )}
+          <h3>Suggested Users</h3>
+        </div>
 
         <button className={styles.shuffleBtn} onClick={fetchSuggestedUsers}>
           <FaSyncAlt />

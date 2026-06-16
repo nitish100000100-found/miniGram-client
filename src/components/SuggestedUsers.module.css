@@ -209,3 +209,32 @@
     opacity: 1;
   }
 }
+
+.suggestedUsersPage {
+  min-height: 100vh;
+  background: #0b071e;
+  background: linear-gradient(135deg, #0f0a2a 0%, #050314 100%);
+  color: #ffffff;
+  padding: 24px 20px 100px 20px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.backBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-3px);
+}
