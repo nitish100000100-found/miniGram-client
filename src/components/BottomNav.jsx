@@ -30,7 +30,6 @@ function BottomNav() {
   }, []);
 
   const hasStories = user?.hasStory;
-  const targetStoryId = user?.targetStoryId;
   const hasUnviewedStories = hasStories && !user?.allViewed;
 
   return (
@@ -44,7 +43,9 @@ function BottomNav() {
       <Link to="/addPost" title="Add Post">
         <FiPlusSquare />
       </Link>
-      <FiFilm />
+      <Link to="/exploreLoop" title="Explore Reels">
+        <FiFilm />
+      </Link>
       
       {user ? (
         <Link to="/myInfo" title="Profile">

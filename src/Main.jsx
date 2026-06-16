@@ -32,6 +32,7 @@ import Notifications from './pages/Notifications.jsx';
 import FollowRequests from './pages/FollowRequests.jsx';
 import SuggestedUsers from './components/SuggestedUsers.jsx';
 import ShowOneLoop from './pages/ShowOneLoop.jsx';
+import ExploreLoop from './pages/ExploreLoop.jsx';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> , loader: protectedLoader},
@@ -125,6 +126,11 @@ const router = createBrowserRouter([
   {
     path: "/explorePost",
     element: <ExplorePost />,
+    loader: protectedLoader
+  },
+  {
+    path: "/exploreLoop",
+    element: <ExploreLoop />,
     loader: protectedLoader
   },
   {
