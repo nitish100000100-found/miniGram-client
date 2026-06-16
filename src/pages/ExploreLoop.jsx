@@ -395,8 +395,8 @@ const ExploreLoop = () => {
                 </span>
               </Link>
             </div>
-            {currentLoop.description && (
-              <p className={styles.caption}>{currentLoop.description}</p>
+            {(currentLoop.caption || currentLoop.description) && (
+              <p className={styles.caption}>{currentLoop.caption || currentLoop.description}</p>
             )}
           </div>
 

@@ -103,7 +103,13 @@ const ShowOneLoop = () => {
       const idx = loops.findIndex(
         (l) => l._id.toString() === initialLoop._id.toString(),
       );
-      setCurrentIndex(idx !== -1 ? idx : 0);
+      if (idx !== -1) {
+        loops[idx] = initialLoop;
+        setCurrentIndex(idx);
+      } else {
+        loops.unshift(initialLoop);
+        setCurrentIndex(0);
+      }
       setAllLoops(loops);
     } catch (error) {
       console.error("Failed to load initial loop data:", error);
@@ -418,8 +424,8 @@ const ShowOneLoop = () => {
                 </span>
               </Link>
             </div>
-            {currentLoop.description && (
-              <p className={styles.caption}>{currentLoop.description}</p>
+            {(currentLoop.caption || currentLoop.description) && (
+              <p className={styles.caption}>{currentLoop.caption || currentLoop.description}</p>
             )}
           </div>
 
