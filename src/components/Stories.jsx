@@ -36,18 +36,25 @@ function Stories() {
     loadData();
   }, []);
 
-  const handlePressStart = () => {
+  const handlePressStart = (e) => {
     if (!currentUser) return;
     pressStartTime.current = Date.now();
   };
 
-  const handlePressEnd = (hasStory, myStoryId) => {
+  const handleTouchMove = () => {
+    pressStartTime.current = null;
+  };
+
+  const handlePressEnd = (e, hasStory, myStoryId) => {
     if (!currentUser || pressStartTime.current === null) return;
 
     const pressDuration = Date.now() - pressStartTime.current;
     pressStartTime.current = null;
 
     if (pressDuration >= LONG_PRESS_DURATION) {
+      if (e) {
+        if (e.cancelable) e.preventDefault();
+      }
       navigate(`/addStory/${currentUser._id}`);
     } else {
       if (hasStory) {
@@ -79,9 +86,11 @@ function Stories() {
         <div
           className={styles.storyItem}
           onMouseDown={handlePressStart}
-          onMouseUp={() => handlePressEnd(hasMyStory, myStoryId)}
+          onMouseUp={(e) => handlePressEnd(e, hasMyStory, myStoryId)}
           onTouchStart={handlePressStart}
-          onTouchEnd={() => handlePressEnd(hasMyStory, myStoryId)}
+          onTouchEnd={(e) => handlePressEnd(e, hasMyStory, myStoryId)}
+          onTouchMove={handleTouchMove}
+          onContextMenu={(e) => e.preventDefault()}
         >
           <div
             className={`${styles.avatarRing} ${hasMyStory && !myAllViewed ? "" : styles.userRing}`}

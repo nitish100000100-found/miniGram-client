@@ -215,20 +215,29 @@
     padding: 0 16px;
   }
   .storyCounter {
-    top: calc(75px + env(safe-area-inset-top, 0px));
-    bottom: auto;
+    top: auto;
+    bottom: calc(130px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
   }
   .bottomActions {
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     width: calc(100% - 24px);
-    background: rgba(15, 8, 30, 0.9);
+    background: rgba(15, 8, 30, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 16px;
-    padding: 12px 6px;
+    padding: 12px 8px;
     backdrop-filter: blur(10px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 12px;
+    box-sizing: border-box;
+  }
+  .actionBtnWithLabel {
+    max-width: 70px;
+    min-width: 60px;
   }
 }
 
@@ -365,7 +374,13 @@
 
 @media (max-width: 768px) {
   .btnLabel {
-    display: none;
+    display: block !important;
+    font-size: 8px;
+    margin-right: 0;
+    text-align: center;
+    color: #e5e7eb;
+    margin-top: 2px;
+    line-height: 1;
   }
 }
 

@@ -156,12 +156,14 @@
   .viewsBtn {
     bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     left: 24px;
+    top: auto;
   }
   .storyCounter {
-    top: calc(75px + env(safe-area-inset-top, 0px));
-    bottom: auto;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 24px;
+    left: auto;
+    transform: none;
+    top: auto;
   }
 }
 
