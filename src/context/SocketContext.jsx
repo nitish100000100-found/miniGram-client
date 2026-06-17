@@ -7,38 +7,24 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
 
-  const connectSocket = () => {
-    if (socket?.connected) return;
-
-    if (socket) {
-      socket.connect();
-      return;
-    }
-
+  useEffect(() => {
     const newSocket = io(import.meta.env.VITE_API_URL, {
       withCredentials: true,
-      autoConnect: true,
     });
+
+    setSocket(newSocket);
 
     newSocket.on("getOnlineUsers", (users) => {
       setOnlineUsers(users);
     });
 
-    setSocket(newSocket);
-  };
-
-  useEffect(() => {
-    connectSocket();
-
     return () => {
-      if (socket) {
-        socket.close();
-      }
+      newSocket.close();
     };
-  }, [socket]);
+  }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, onlineUsers, connectSocket }}>
+    <SocketContext.Provider value={{ socket, onlineUsers }}>
       {children}
     </SocketContext.Provider>
   );

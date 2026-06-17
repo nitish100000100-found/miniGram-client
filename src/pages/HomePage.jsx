@@ -2,15 +2,23 @@ import DesktopLayout from "../components/DesktopLayout.jsx";
 import MobileLayout from "../components/MobileLayout.jsx";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useSocket } from "../context/SocketContext.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function HomePage() {
+  const { socket } = useSocket();
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 900
   );
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+
+  useEffect(() => {
+    if (socket && !socket.connected) {
+      socket.connect();
+    }
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {

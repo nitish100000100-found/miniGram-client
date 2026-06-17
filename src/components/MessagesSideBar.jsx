@@ -9,7 +9,7 @@ import styles from "./MessageSidebar.module.css";
 const API_URL = import.meta.env.VITE_API_URL;
 
 function MessagesSideBar() {
-  const { onlineUsers, connectSocket } = useSocket();
+  const { onlineUsers } = useSocket();
   const [unreadCount, setUnreadCount] = useState(0);
   const [activeChats, setActiveChats] = useState([]);
   const [following, setFollowing] = useState([]);
@@ -19,10 +19,6 @@ function MessagesSideBar() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (connectSocket) {
-      connectSocket();
-    }
-
     const fetchData = async () => {
       try {
         const [unreadRes, chatsRes, currRes] = await Promise.all([

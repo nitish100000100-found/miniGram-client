@@ -3,10 +3,6 @@ import Feed from "./Feed.jsx";
 import BottomNav from "./BottomNav.jsx";
 import styles from "./MobileLayout.module.css";
 
-
-
-
-
 function MobileLayout({ unreadCount, unreadMessagesCount }) {
   return (
     <div className={styles.mobileLayout}>
