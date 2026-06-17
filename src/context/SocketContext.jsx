@@ -29,7 +29,3 @@ export const SocketProvider = ({ children }) => {
     </SocketContext.Provider>
   );
 };
-
-export const useSocket = () => {
-  return useContext(SocketContext);
-};

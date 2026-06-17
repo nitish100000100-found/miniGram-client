@@ -1,9 +1,10 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { useSocket } from "../context/SocketContext.jsx";
+import { SocketContext } from "../context/SocketContext.jsx";
 import styles from "./ChatList.module.css";
 
 function ChatList({ chats }) {
-  const { onlineUsers } = useSocket();
+  const { onlineUsers } = useContext(SocketContext);
 
   if (!chats || chats.length === 0) {
     return (

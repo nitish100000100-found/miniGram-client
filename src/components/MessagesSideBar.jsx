@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import ChatList from "./ChatList.jsx";
-import { useSocket } from "../context/SocketContext.jsx";
+import { SocketContext } from "../context/SocketContext.jsx";
 import styles from "./MessageSidebar.module.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function MessagesSideBar() {
-  const { onlineUsers } = useSocket();
+  const { onlineUsers } = useContext(SocketContext);
   const [unreadCount, setUnreadCount] = useState(0);
   const [activeChats, setActiveChats] = useState([]);
   const [following, setFollowing] = useState([]);

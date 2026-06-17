@@ -1,13 +1,13 @@
 import DesktopLayout from "../components/DesktopLayout.jsx";
 import MobileLayout from "../components/MobileLayout.jsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { useSocket } from "../context/SocketContext.jsx";
+import { SocketContext } from "../context/SocketContext.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function HomePage() {
-  const { socket } = useSocket();
+  const { socket } = useContext(SocketContext);
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 900
   );

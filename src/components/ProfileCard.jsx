@@ -1,7 +1,7 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import styles from "./ProfileCard.module.css";
-import { useSocket } from "../context/SocketContext.jsx";
+import { SocketContext } from "../context/SocketContext.jsx";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 
 function ProfileCard() {
   const [user, setUser] = useState(null);
-  const { socket } = useSocket();
+  const { socket } = useContext(SocketContext);
   const navigate = useNavigate();
 
   useEffect(() => {

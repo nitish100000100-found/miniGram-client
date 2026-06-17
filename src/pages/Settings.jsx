@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
@@ -13,13 +13,13 @@ import {
   FaBookmark,
 } from "react-icons/fa";
 import styles from "./Settings.module.css";
-import { useSocket } from "../context/SocketContext.jsx";
+import { SocketContext } from "../context/SocketContext.jsx";
 
 const Settings = () => {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const { socket } = useSocket();
+  const { socket } = useContext(SocketContext);
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
