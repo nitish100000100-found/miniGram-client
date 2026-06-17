@@ -5,6 +5,7 @@ import "./index.css";
 import { protectedLoader } from './extrafxn/loaders.js';
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { SocketProvider } from "./context/SocketContext.jsx";
 
 import Signup from './pages/Signup.jsx';
 import SignIn from './pages/SignIn.jsx';
@@ -33,6 +34,8 @@ import FollowRequests from './pages/FollowRequests.jsx';
 import SuggestedUsers from './components/SuggestedUsers.jsx';
 import ShowOneLoop from './pages/ShowOneLoop.jsx';
 import ExploreLoop from './pages/ExploreLoop.jsx';
+import MessagesSideBar from './components/MessagesSideBar.jsx';
+import ChatPage from './pages/ChatPage.jsx';
 
 const router = createBrowserRouter([
   { path: "/", element: <HomePage /> , loader: protectedLoader},
@@ -159,12 +162,22 @@ const router = createBrowserRouter([
     loader: protectedLoader
   },
 
+  {
+    path: "/messages",
+    element: <MessagesSideBar />,
+    loader: protectedLoader
+  },
+  {
+    path: "/chatwith/:userId",
+    element: <ChatPage />,
+    loader: protectedLoader
+  },
   { path: "*", element: <NotFound/>, loader: protectedLoader},
 ]);
 
 
 createRoot(document.getElementById("root")).render(
- 
+  <SocketProvider>
     <RouterProvider router={router} />
- 
+  </SocketProvider>
 );

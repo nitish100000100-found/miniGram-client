@@ -10,6 +10,7 @@ function HomePage() {
     window.innerWidth < 900
   );
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -41,9 +42,27 @@ function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const fetchUnreadMessages = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/message/unreadCount`, {
+          withCredentials: true,
+        });
+        setUnreadMessagesCount(res.data.unreadCount || 0);
+      } catch (err) {
+        console.error("Error fetching unread messages count:", err.message);
+      }
+    };
+
+    fetchUnreadMessages();
+    const interval = setInterval(fetchUnreadMessages, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return isMobile
-    ? <MobileLayout unreadCount={unreadCount} />
-    : <DesktopLayout unreadCount={unreadCount} />;
+    ? <MobileLayout unreadCount={unreadCount} unreadMessagesCount={unreadMessagesCount} />
+    : <DesktopLayout unreadCount={unreadCount} unreadMessagesCount={unreadMessagesCount} />;
 }
 
 export default HomePage;

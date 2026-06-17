@@ -1,55 +1,88 @@
+import { Link } from "react-router-dom";
+import { useSocket } from "../context/SocketContext.jsx";
 import styles from "./ChatList.module.css";
 
-const MOCK_CHATS = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    avatar: "/insta.webp",
-    lastMessage: "Are you coming to the party tonight?",
-    time: "2m ago",
-    online: true,
-  },
-  {
-    id: 2,
-    name: "Aman Gupta",
-    avatar: "/insta.webp",
-    lastMessage: "Check out the design files I sent.",
-    time: "1h ago",
-    online: false,
-  },
-  {
-    id: 3,
-    name: "Sneha Reddy",
-    avatar: "/insta.webp",
-    lastMessage: "Haha indeed! Let's connect tomorrow.",
-    time: "3h ago",
-    online: true,
-  },
-];
+function ChatList({ chats }) {
+  const { onlineUsers } = useSocket();
 
-function ChatList() {
+  if (!chats || chats.length === 0) {
+    return (
+      <div className={styles.emptyState}>
+        <p>No active chats yet</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.chatList}>
-      {MOCK_CHATS.map((chat) => (
-        <div key={chat.id} className={styles.chatItem}>
-          <div className={styles.avatarContainer}>
-            <img
-              src={chat.avatar}
-              alt={chat.name}
-              className={styles.avatar}
-            />
-            {chat.online && <span className={styles.statusDot} />}
-          </div>
+      {chats.map((item) => {
+        const userId = item.otherParticipant?._id;
+        const name = item.otherParticipant?.name;
+        const username = item.otherParticipant?.username;
+        const avatar = item.otherParticipant?.profilePicture || "/insta.webp";
 
-          <div className={styles.chatInfo}>
-            <div className={styles.chatHeader}>
-              <span className={styles.name}>{chat.name}</span>
-              <span className={styles.time}>{chat.time}</span>
+        let lastMessageText = "";
+        let timeText = "";
+
+        const lm = item.lastMessage;
+        if (lm) {
+          const isSenderOther =
+            lm.senderId?.toString() === item.otherParticipant?._id?.toString();
+          const prefix = isSenderOther
+            ? `${item.otherParticipant?.name || item.otherParticipant?.username}: `
+            : "You: ";
+
+          if (lm.message) {
+            lastMessageText = `${prefix}${lm.message}`;
+          } else if (lm.image) {
+            lastMessageText = `${prefix}📷 Photo`;
+          } else if (lm.video) {
+            lastMessageText = `${prefix}🎥 Video`;
+          }
+          if (lm.createdAt) {
+            const date = new Date(lm.createdAt);
+            timeText = date.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          }
+        }
+
+        const isOnline = onlineUsers.some(
+          (onlineId) => onlineId.toString() === userId?.toString()
+        );
+
+        return (
+          <Link
+            key={userId}
+            to={`/chatwith/${userId}`}
+            className={styles.chatLink}
+          >
+            <div className={styles.chatItem}>
+              <div className={styles.avatarContainer}>
+                <img
+                  src={avatar}
+                  alt={name || username}
+                  className={styles.avatar}
+                />
+                {isOnline && <div className={styles.statusDot} />}
+              </div>
+
+              <div className={styles.chatInfo}>
+                <div className={styles.chatHeader}>
+                  <span className={styles.name}>{name || `@${username}`}</span>
+                  {timeText && <span className={styles.time}>{timeText}</span>}
+                </div>
+                <span className={styles.message}>
+                  {lastMessageText || "Start chatting..."}
+                </span>
+              </div>
+
+              {item.glow && <div className={styles.glowDot} />}
             </div>
-            <span className={styles.message}>{chat.lastMessage}</span>
-          </div>
-        </div>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }

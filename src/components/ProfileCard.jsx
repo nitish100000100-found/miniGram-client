@@ -1,24 +1,23 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import styles from "./ProfileCard.module.css";
+import { useSocket } from "../context/SocketContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 import { Link } from "react-router-dom";
 
 function ProfileCard() {
   const [user, setUser] = useState(null);
+  const { socket } = useSocket();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const res = await axios.get(
-          `${API_URL}/api/user/current`,
-          {
-            withCredentials: true,
-          }
-        );
-      
-
+        const res = await axios.get(`${API_URL}/api/user/current`, {
+          withCredentials: true,
+        });
 
         setUser(res.data.user);
       } catch (error) {
@@ -36,10 +35,10 @@ function ProfileCard() {
         {},
         {
           withCredentials: true,
-        }
+        },
       );
-
-      window.location.reload();
+      socket?.disconnect();
+      navigate("/signin");
     } catch (error) {
       console.log(error.response?.data?.message || error.message);
     }
@@ -57,7 +56,9 @@ function ProfileCard() {
       <div className={styles.profileLeft}>
         {hasStories ? (
           <Link to={`/lookForStory/${targetStoryId}`}>
-            <div className={`${styles.avatarRing} ${hasUnviewedStories ? "" : styles.userRing}`}>
+            <div
+              className={`${styles.avatarRing} ${hasUnviewedStories ? "" : styles.userRing}`}
+            >
               <img
                 src={user.profilePicture || "/insta.webp"}
                 alt={user.name}
@@ -82,10 +83,7 @@ function ProfileCard() {
         </Link>
       </div>
 
-      <button
-        onClick={handleLogout}
-        className={styles.logoutBtn}
-      >
+      <button onClick={handleLogout} className={styles.logoutBtn}>
         Logout
       </button>
     </div>

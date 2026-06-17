@@ -3,12 +3,23 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
 import { IoArrowBack } from "react-icons/io5";
-import { FaLock, FaUserShield, FaSignOutAlt, FaEye, FaEyeSlash, FaUserSlash, FaBookmark } from "react-icons/fa";
+import {
+  FaLock,
+  FaUserShield,
+  FaSignOutAlt,
+  FaEye,
+  FaEyeSlash,
+  FaUserSlash,
+  FaBookmark,
+} from "react-icons/fa";
 import styles from "./Settings.module.css";
+import { useSocket } from "../context/SocketContext.jsx";
 
 const Settings = () => {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
+
+  const { socket } = useSocket();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +61,6 @@ const Settings = () => {
     }
   }, [successMessage]);
 
-
   const handleTogglePrivacy = async () => {
     if (!user || savingPrivacy) return;
 
@@ -58,11 +68,13 @@ const Settings = () => {
     setErrors([]);
     setSuccessMessage("");
     try {
-      const endpoint = user.isPrivate ? "switch-to-public" : "switch-to-private";
+      const endpoint = user.isPrivate
+        ? "switch-to-public"
+        : "switch-to-private";
       const res = await axios.post(
         `${API_URL}/api/user/${endpoint}`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       if (res.data?.user) {
@@ -70,11 +82,16 @@ const Settings = () => {
           ...prev,
           isPrivate: res.data.user.isPrivate,
         }));
-        setSuccessMessage(res.data.message || `Account is now ${res.data.user.isPrivate ? "private" : "public"}`);
+        setSuccessMessage(
+          res.data.message ||
+            `Account is now ${res.data.user.isPrivate ? "private" : "public"}`,
+        );
       }
     } catch (error) {
       console.error("Failed to toggle privacy status:", error);
-      setErrors([error?.response?.data?.message || "Failed to update privacy settings."]);
+      setErrors([
+        error?.response?.data?.message || "Failed to update privacy settings.",
+      ]);
     } finally {
       setSavingPrivacy(false);
     }
@@ -105,7 +122,7 @@ const Settings = () => {
       const res = await axios.post(
         `${API_URL}/api/auth/change-password`,
         { oldPassword, newPassword },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       setSuccessMessage(res.data?.message || "Password changed successfully!");
@@ -114,7 +131,9 @@ const Settings = () => {
       setConfirmPassword("");
     } catch (error) {
       console.error("Failed to change password:", error);
-      setErrors([error?.response?.data?.message || "Failed to change password."]);
+      setErrors([
+        error?.response?.data?.message || "Failed to change password.",
+      ]);
     } finally {
       setPasswordLoading(false);
     }
@@ -125,8 +144,9 @@ const Settings = () => {
       await axios.post(
         `${API_URL}/api/auth/logout`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
+      socket?.disconnect();
       navigate("/signin");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -168,9 +188,7 @@ const Settings = () => {
         )}
 
         {successMessage && (
-          <div className={styles.successBox}>
-            {successMessage}
-          </div>
+          <div className={styles.successBox}>{successMessage}</div>
         )}
 
         {/* PRIVACY SECTION */}
@@ -184,7 +202,8 @@ const Settings = () => {
               <div className={styles.settingText}>
                 <span className={styles.settingLabel}>Private Account</span>
                 <p className={styles.settingDesc}>
-                  When your account is private, only people you approve can see your photos and videos.
+                  When your account is private, only people you approve can see
+                  your photos and videos.
                 </p>
               </div>
               <label className={styles.switch}>
@@ -194,7 +213,9 @@ const Settings = () => {
                   onChange={handleTogglePrivacy}
                   disabled={savingPrivacy}
                 />
-                <span className={`${styles.slider} ${savingPrivacy ? styles.sliderDisabled : ""}`}></span>
+                <span
+                  className={`${styles.slider} ${savingPrivacy ? styles.sliderDisabled : ""}`}
+                ></span>
               </label>
             </div>
           </div>
@@ -258,8 +279,16 @@ const Settings = () => {
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            <button type="submit" disabled={passwordLoading} className={styles.saveBtn}>
-              {passwordLoading ? <ClipLoader size={18} color="#fff" /> : "Change Password"}
+            <button
+              type="submit"
+              disabled={passwordLoading}
+              className={styles.saveBtn}
+            >
+              {passwordLoading ? (
+                <ClipLoader size={18} color="#fff" />
+              ) : (
+                "Change Password"
+              )}
             </button>
           </form>
         </div>

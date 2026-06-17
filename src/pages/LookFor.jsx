@@ -517,7 +517,9 @@ function LookFor() {
             )}
 
             {canViewProfile && (
-              <button className={styles.messageBtn}>Message</button>
+              <Link to={`/chatwith/${user._id}`} style={{ textDecoration: 'none' }}>
+                <button className={styles.messageBtn}>Message</button>
+              </Link>
             )}
           </div>
           {user.commonUsers?.length > 0 && (
