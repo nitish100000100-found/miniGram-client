@@ -18,8 +18,19 @@ export const SocketProvider = ({ children }) => {
       setOnlineUsers(users);
     });
 
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        newSocket.disconnect();
+      } else {
+        newSocket.connect();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       newSocket.close();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
