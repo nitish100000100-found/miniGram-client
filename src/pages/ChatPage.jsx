@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSocket } from "../context/SocketContext.jsx";
 
 function ChatPage() {
-  const { socket, onlineUsers } = useSocket();
+  const { socket, onlineUsers, connectSocket } = useSocket();
+
+  useEffect(() => {
+    if (connectSocket) {
+      connectSocket();
+    }
+  }, [connectSocket]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", color: "#fff", backgroundColor: "#0c0720" }}>
