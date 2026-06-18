@@ -44,7 +44,7 @@ function ChatPage() {
         ]);
 
         setCurrentUser(meRes.data.user);
-        setOtherUser(otherRes.data.user);
+        setOtherUser(otherRes.data);
         setMessages(messagesRes.data.messages || []);
       } catch (err) {
         console.error("Failed to load chat data:", err);
