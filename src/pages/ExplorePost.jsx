@@ -275,9 +275,6 @@ function ExplorePost() {
                         </div>
                       </Link>
                     </div>
-                    <button className={styles.postMoreBtn}>
-                      <FaEllipsisH />
-                    </button>
                   </div>
 
                   <div

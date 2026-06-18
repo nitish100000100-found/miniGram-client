@@ -724,9 +724,6 @@ function LookFor() {
                             )}
                           </div>
                         </div>
-                        <button className={styles.postMoreBtn}>
-                          <FaEllipsisH />
-                        </button>
                       </div>
 
                       <div
