@@ -18,19 +18,33 @@ export const SocketProvider = ({ children }) => {
       setOnlineUsers(users);
     });
 
+    const handleOffline = () => {
+      newSocket.disconnect();
+    };
+
+    const handleOnline = () => {
+      newSocket.connect();
+    };
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        newSocket.disconnect();
+        handleOffline();
       } else {
-        newSocket.connect();
+        handleOnline();
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handleOffline);
+    window.addEventListener("pageshow", handleOnline);
+    window.addEventListener("beforeunload", handleOffline);
 
     return () => {
       newSocket.close();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handleOffline);
+      window.removeEventListener("pageshow", handleOnline);
+      window.removeEventListener("beforeunload", handleOffline);
     };
   }, []);
 
