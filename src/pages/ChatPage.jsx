@@ -222,9 +222,12 @@ function ChatPage() {
                 <div className={isOnline ? styles.onlineBadge : styles.offlineBadge} />
               </div>
               <div className={styles.userDetails}>
-                <span className={styles.name}>{otherUser.name || otherUser.username}</span>
+                <span className={styles.name}>
+                  {otherUser.name || "miniGram User"}{" "}
+                  <span className={styles.username}>@{otherUser.username}</span>
+                </span>
                 <span className={`${styles.status} ${isOnline ? styles.online : ""}`}>
-                  {isOnline ? "Active now" : "Offline"}
+                  {isOnline ? "Online" : "Offline"}
                 </span>
               </div>
             </Link>
