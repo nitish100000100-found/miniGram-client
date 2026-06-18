@@ -8,7 +8,6 @@ import {
   FaRegHeart,
   FaHeart,
   FaRegComment,
-  FaRegPaperPlane,
   FaRegBookmark,
   FaBookmark,
   FaPlay,
@@ -395,9 +394,6 @@ const SavedPosts = () => {
                               {post.comments?.length || 0}
                             </span>
                           </Link>
-                          <button className={styles.actionBtn}>
-                            <FaRegPaperPlane />
-                          </button>
                         </div>
                         <button
                           className={`${styles.actionBtn} ${

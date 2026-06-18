@@ -4,7 +4,6 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   FaHeart,
   FaRegHeart,
-  FaRegPaperPlane,
   FaBookmark,
   FaRegBookmark,
   FaTrash,
@@ -218,9 +217,7 @@ function CommentPage() {
     }
   };
 
-  const handleShare = () => {
-   
-  };
+
 
   const handlePostComment = async (e) => {
     e.preventDefault();
@@ -406,9 +403,6 @@ function CommentPage() {
                   onClick={handleLike}
                 >
                   {isLiked ? <FaHeart /> : <FaRegHeart />}
-                </button>
-                <button type="button" className={styles.actionBtn} onClick={handleShare}>
-                  <FaRegPaperPlane />
                 </button>
               </div>
               <button

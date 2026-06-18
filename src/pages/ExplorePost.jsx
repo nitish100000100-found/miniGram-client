@@ -6,7 +6,6 @@ import {
   FaHeart,
   FaRegHeart,
   FaRegComment,
-  FaRegPaperPlane,
   FaBookmark,
   FaRegBookmark,
   FaEllipsisH,
@@ -336,9 +335,6 @@ function ExplorePost() {
                         <FaRegComment />
                         <span className={styles.commentCount}>{post.comments?.length || 0}</span>
                       </Link>
-                      <button className={styles.postActionBtn}>
-                        <FaRegPaperPlane />
-                      </button>
                     </div>
 
                     <button

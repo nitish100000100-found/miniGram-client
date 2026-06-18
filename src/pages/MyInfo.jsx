@@ -10,7 +10,6 @@ import {
   FaHeart,
   FaRegHeart,
   FaComment,
-  FaShare,
   FaBookmark,
   FaRegBookmark,
   FaUserEdit,
@@ -18,7 +17,6 @@ import {
   FaPlus,
   FaTrash,
   FaRegComment,
-  FaRegPaperPlane,
   FaPlay,
   FaVolumeMute,
   FaVolumeUp,
@@ -190,8 +188,6 @@ function MyInfo() {
       console.error("Like interaction failed:", err);
     }
   };
-
-  const handleShare = (post) => console.log("Share:", post);
 
   const handleSave = async (postId, isSaved) => {
     if (!user) return;
@@ -571,12 +567,6 @@ function MyInfo() {
                               {post.comments?.length || 0}
                             </span>
                           </Link>
-                          <button
-                            className={styles.postActionBtn}
-                            onClick={() => handleShare(post)}
-                          >
-                            <FaRegPaperPlane />
-                          </button>
                         </div>
                         <button
                           className={`${styles.postActionBtn} ${isSaved ? styles.postSaved : ""}`}

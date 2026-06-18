@@ -12,12 +12,10 @@ import {
   FaHeart,
   FaRegHeart,
   FaComment,
-  FaShare,
   FaBookmark,
   FaRegBookmark,
   FaEllipsisH,
   FaRegComment,
-  FaRegPaperPlane,
   FaPlay,
   FaVolumeMute,
   FaVolumeUp,
@@ -203,8 +201,6 @@ function LookFor() {
     }
   };
 
-
-  const handleShare = (post) => console.log("Share:", post);
 
   const handleSave = async (postId, isSaved) => {
     if (!currentUser) return;
@@ -793,12 +789,6 @@ function LookFor() {
                               {post.comments?.length || 0}
                             </span>
                           </Link>
-                          <button
-                            className={styles.postActionBtn}
-                            onClick={() => handleShare(post)}
-                          >
-                            <FaRegPaperPlane />
-                          </button>
                         </div>
 
                         <button
