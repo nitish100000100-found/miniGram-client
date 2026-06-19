@@ -138,7 +138,7 @@ function ChatPage() {
   const confirmDeleteMessage = async () => {
     if (!messageToDeleteId) return;
     try {
-      await axios.delete(`${API_URL}/api/message/unsendMessage/${messageToDeleteId}`, {
+      await axios.post(`${API_URL}/api/message/unsendMessage/${messageToDeleteId}`, {
         withCredentials: true,
       });
       setMessages((prev) => prev.filter((m) => m._id !== messageToDeleteId));
@@ -173,7 +173,7 @@ function ChatPage() {
 
   const confirmClearChat = async () => {
     try {
-      await axios.delete(`${API_URL}/api/message/clearChat/${userId}`, {
+      await axios.post(`${API_URL}/api/message/clearChat/${userId}`, {
         withCredentials: true,
       });
       setMessages([]);
