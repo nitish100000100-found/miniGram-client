@@ -41,7 +41,8 @@
 }
 
 .backLink {
-  display: none;
+  display: flex;
+  align-items: center;
   color: #a78bfa;
   font-size: 20px;
   cursor: pointer;
@@ -50,13 +51,6 @@
 
 .backLink:hover {
   color: #ffffff;
-}
-
-@media (max-width: 900px) {
-  .backLink {
-    display: flex;
-    align-items: center;
-  }
 }
 
 .search {
